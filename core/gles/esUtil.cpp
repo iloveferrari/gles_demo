@@ -178,6 +178,15 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetCursorPos(&point);
 		ScreenToClient(hWnd, &point);
 
+		if (point.x >= esContext->width ||
+			point.x <= 0 ||
+			point.y >= esContext->height ||
+			point.y <= 0)
+		{
+			Input::getInstance()->updateKeys(RIGHT_CLICK, false);
+			Input::getInstance()->updateKeys(LEFT_CLICK, false);
+		}
+
 		Input::getInstance()->updateAxis((int)point.x, (int)point.y);
 
 		break;
@@ -197,23 +206,31 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		char ascii_code = wParam;        //松开的ASCII码
 		unsigned int key_state = lParam; //获取按下的键状态
 
-		if (ascii_code == 'w' || 
+		if (ascii_code == 'w' ||
 			ascii_code == 'W' ||
 			ascii_code == 'S' ||
 			ascii_code == 's' ||
 			ascii_code == 'A' ||
-			ascii_code == 'a' || 
-			ascii_code == 'D' || 
+			ascii_code == 'a' ||
+			ascii_code == 'D' ||
 			ascii_code == 'd' ||
-			ascii_code == 'Z' || 
+			ascii_code == 'Z' ||
 			ascii_code == 'z' ||
-			ascii_code == 'X' || 
+			ascii_code == 'X' ||
 			ascii_code == 'x')
 		{
 			Input::getInstance()->updateMoveDirection(NOINPUT);
 		}
 
 		break;
+	}
+
+	case WM_MOUSEWHEEL:
+	{
+		unsigned int fwKeys = LOWORD(wParam);
+		int zDelta = (short)HIWORD(wParam);
+		/*   wheel   rotation   */
+		Input::getInstance()->updateMouseWheelScroll(zDelta);
 	}
 
 	case WM_CHAR:

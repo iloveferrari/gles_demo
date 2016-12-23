@@ -12,6 +12,7 @@ Camera::Camera()
 	m_horizontalAngle = 0.0f;
 	m_verticalAngle = 0.0f;
 	m_moveSpeed = 2.0f;
+	m_fieldOfView = 60.0f;
 }
 
 Camera::~Camera()
@@ -76,6 +77,33 @@ void Camera::update(ESContext *esContext, float detlaTime)
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
 		esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
 	}
+
+	float scroll_dis = Input::getInstance()->getMouseWheelScroll();
+	if (scroll_dis != 0)
+	{
+		m_fieldOfView += scroll_dis / 60;
+
+		if (m_fieldOfView < 5.0f)
+		{
+			m_fieldOfView = 5.0f;
+		}
+
+		if (m_fieldOfView > 130.0f)
+		{
+			m_fieldOfView = 130.0f;
+		}
+
+		float    aspect;
+		aspect = (GLfloat)esContext->width / (GLfloat)esContext->height;
+		esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 100.0f);
+
+		glm::mat4 orientation;
+		orientation = glm::rotate(orientation, m_verticalAngle, glm::vec3(1, 0, 0));
+		orientation = glm::rotate(orientation, m_horizontalAngle, glm::vec3(0, 1, 0));
+
+		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
+		esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
+	}
 }
 
 void Camera::normalizeAngles() {
@@ -98,6 +126,10 @@ void Camera::normalizeAngles() {
 
 void Camera::lookAt(ESContext *esContext, glm::vec3 eye, glm::vec3 center, glm::vec3 up)
 {
+	float    aspect;
+
+	aspect = (GLfloat)esContext->width / (GLfloat)esContext->height;
+	esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 100.0f);
 	m_position = eye;
 	m_cameraMatrix = glm::lookAt(eye, center, up);
 	esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;

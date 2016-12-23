@@ -54,10 +54,6 @@ void update(ESContext *esContext, float detlaTime)
 
 void init(ESContext *esContext)
 {
-	float    aspect;
-
-	aspect = (GLfloat)esContext->width / (GLfloat)esContext->height;
-	esContext->perspective_matrix = glm::perspective(60.0f, aspect, 0.01f, 100.0f);
 	_camera.lookAt(esContext, glm::vec3(0, 0, 4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
 	_triangle.init();
 	_cube.init();

@@ -34,6 +34,7 @@ public:
 		: m_x(0)
 		, m_y(0)
 		, m_sensitivity(0.02f)
+		, m_mouseWheelScrollDis(0.0f)
 	{}
 
 	static Input *getInstance()
@@ -66,6 +67,18 @@ public:
 		m_direction = dir;
 	}
 
+	void updateMouseWheelScroll(float scrollDis)
+	{
+		m_mouseWheelScrollDis = scrollDis;
+	}
+
+	float getMouseWheelScroll()
+	{
+		float result = m_mouseWheelScrollDis;
+		m_mouseWheelScrollDis = 0;
+		return result;
+	}
+
 	DIRECTION getMoveDirection()
 	{
 		return m_direction;
@@ -96,6 +109,7 @@ private:
 	float m_sensitivity;
 	unordered_map<KEYNAME, bool> m_keysState;
 	DIRECTION m_direction;
+	float m_mouseWheelScrollDis;
 };
 
 #endif INPUT_H

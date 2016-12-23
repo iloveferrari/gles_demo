@@ -20,6 +20,7 @@ private:
 
 	glm::vec3 m_position;
 	float m_moveSpeed;
+	float m_fieldOfView;
 };
 
 #endif // CAMERA_H
