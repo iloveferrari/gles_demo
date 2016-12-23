@@ -1,0 +1,57 @@
+﻿生成启动时间为 2016/12/23 18:22:12。
+     1>项目“D:\gles_demo\gles_demo.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt core\rendering\Camera.cpp
+         Camera.cpp
+     1>D:\gles_demo\core\rendering\Input.h(51): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+     1>D:\gles_demo\core\rendering\Input.h(52): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+     1>D:\gles_demo\core\rendering\Input.h(81): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>D:\gles_demo\core\rendering\Input.h(83): warning C4244: “return”: 从“int”转换到“float”，可能丢失数据
+     1>D:\gles_demo\core\rendering\Input.h(88): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>D:\gles_demo\core\rendering\Input.h(90): warning C4244: “return”: 从“int”转换到“float”，可能丢失数据
+     1>core\rendering\Camera.cpp(26): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>core\rendering\Camera.cpp(27): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+         GLM: rotate function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\gles_demo\x64\Debug\gles_demo.exe" /INCREMENTAL /NOLOGO libEGL.lib libGLESv2.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\gles_demo\x64\Debug\gles_demo.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\gles_demo\x64\Debug\gles_demo.lib" /MACHINE:X64 x64\Debug\esUtil.obj
+         x64\Debug\png.obj
+         x64\Debug\pngerror.obj
+         x64\Debug\pngget.obj
+         x64\Debug\pngmem.obj
+         x64\Debug\pngpread.obj
+         x64\Debug\pngread.obj
+         x64\Debug\pngrio.obj
+         x64\Debug\pngrtran.obj
+         x64\Debug\pngrutil.obj
+         x64\Debug\pngset.obj
+         x64\Debug\pngtrans.obj
+         x64\Debug\pngwio.obj
+         x64\Debug\pngwrite.obj
+         x64\Debug\pngwtran.obj
+         x64\Debug\pngwutil.obj
+         x64\Debug\adler32.obj
+         x64\Debug\compress.obj
+         x64\Debug\crc32.obj
+         x64\Debug\deflate.obj
+         x64\Debug\gzclose.obj
+         x64\Debug\gzlib.obj
+         x64\Debug\gzread.obj
+         x64\Debug\gzwrite.obj
+         x64\Debug\infback.obj
+         x64\Debug\inffast.obj
+         x64\Debug\inflate.obj
+         x64\Debug\inftrees.obj
+         x64\Debug\trees.obj
+         x64\Debug\uncompr.obj
+         x64\Debug\zutil.obj
+         x64\Debug\glm.obj
+         x64\Debug\Camera.obj
+         x64\Debug\cube.obj
+         x64\Debug\triangle.obj
+         x64\Debug\main.obj
+         gles_demo.vcxproj -> D:\gles_demo\x64\Debug\gles_demo.exe
+     1>已完成生成项目“D:\gles_demo\gles_demo.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.82
