@@ -194,6 +194,14 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_PAINT:
 	{
+		ESContext *esContext = (ESContext *)(LONG_PTR)GetWindowLongPtr(hWnd, GWL_USERDATA);
+		if (esContext && esContext->drawFunc)
+		{
+			esContext->drawFunc(esContext);
+
+			eglSwapBuffers(esContext->eglDisplay, esContext->eglSurface);
+			ValidateRect(esContext->eglNativeWindow, NULL);
+		}
 	}
 		break;
 
@@ -311,10 +319,10 @@ void esStartLoop(ESContext *esContext)
 				DispatchMessage(&msg);
 			}
 		}
-		//else
-		//{
-			//SendMessage(esContext->eglNativeWindow, WM_PAINT, 0, 0);
-		//}
+		else
+		{
+			SendMessage(esContext->eglNativeWindow, WM_PAINT, 0, 0);
+		}
 
 		// Call update function if registered
 		if (esContext->updateFunc != NULL)
@@ -345,7 +353,7 @@ GLboolean WinCreate(ESContext *esContext, const char *title)
 	wndclass.lpfnWndProc = (WNDPROC)ESWindowProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wndclass.lpszClassName = "opengles3.0";
+	wndclass.lpszClassName = L"opengles3.0";
 
 	if (!RegisterClass(&wndclass))
 	{
@@ -365,7 +373,7 @@ GLboolean WinCreate(ESContext *esContext, const char *title)
 
 
 
-	esContext->eglNativeWindow = CreateWindow(
+	esContext->eglNativeWindow = CreateWindowA(
 		"opengles3.0",
 		title,
 		wStyle,
@@ -520,49 +528,6 @@ GLboolean ESUTIL_API esCreateWindow(ESContext *esContext, const char *title, GLi
 #endif // #ifndef __APPLE__
 
 	return GL_TRUE;
-}
-
-void ESUTIL_API
-esFrustum(glm::mat4 &result, float left, float right, float bottom, float top, float nearZ, float farZ)
-{
-	float       deltaX = right - left;
-	float       deltaY = top - bottom;
-	float       deltaZ = farZ - nearZ;
-	glm::mat4   frust;
-
-	if ((nearZ <= 0.0f) || (farZ <= 0.0f) ||
-		(deltaX <= 0.0f) || (deltaY <= 0.0f) || (deltaZ <= 0.0f))
-	{
-		return;
-	}
-
-	frust[0][0] = 2.0f * nearZ / deltaX;
-	frust[0][1] = frust[0][2] = frust[0][3] = 0.0f;
-
-	frust[1][1] = 2.0f * nearZ / deltaY;
-	frust[1][0] = frust[1][2] = frust[1][3] = 0.0f;
-
-	frust[2][0] = (right + left) / deltaX;
-	frust[2][1] = (top + bottom) / deltaY;
-	frust[2][2] = -(nearZ + farZ) / deltaZ;
-	frust[2][3] = -1.0f;
-
-	frust[3][2] = -2.0f * nearZ * farZ / deltaZ;
-	frust[3][0] = frust[3][1] = frust[3][3] = 0.0f;
-
-	result *= frust;
-}
-
-
-void ESUTIL_API
-esPerspective(glm::mat4 &result, float fovy, float aspect, float nearZ, float farZ)
-{
-	GLfloat frustumW, frustumH;
-
-	frustumH = tanf(fovy / 360.0f * PI) * nearZ;
-	frustumW = frustumH * aspect;
-
-	esFrustum(result, -frustumW, frustumW, -frustumH, frustumH, nearZ, farZ);
 }
 
 ///
@@ -934,4 +899,55 @@ GLuint loadTexture(const char *filename, int *width, int *height)
 	}
 
 	return tex;
+}
+
+#include <rendering/Camera.h>
+#include <rendering/triangle.h>
+#include <rendering/Cube.h>
+#include <rendering/Label.h>
+
+#include <glm/gtc/matrix_transform.hpp>
+
+Camera _camera;
+Triangle _triangle;
+Cube     _cube;
+Label   _label;
+
+void Draw(ESContext *esContext)
+{
+	// Clear the color buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	_triangle.draw(esContext);
+	_cube.draw(esContext);
+	_label.draw(esContext);
+}
+
+void update(ESContext *esContext, float detlaTime)
+{
+	_camera.update(esContext, detlaTime);
+	//Draw(esContext);
+}
+
+void init(ESContext *esContext)
+{
+	_camera.lookAt(esContext, glm::vec3(0, 0, 4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
+	_triangle.init();
+	_cube.init();
+	_label.initWithString("1234567890", "DFGB_Y7_0.ttf", 22);
+
+	glEnable(GL_CULL_FACE);  // 不采用背面剔除
+	glEnable(GL_DEPTH_TEST);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
+void esMain(ESContext *esContext)
+{
+	esCreateWindow(esContext, "gles_demo", 640, 480, ES_WINDOW_RGB | ES_WINDOW_DEPTH);
+
+	init(esContext);
+
+	esRegisterDrawFunc(esContext, Draw);
+	esRegisterUpdateFunc(esContext, update);
 }

@@ -1,23 +1,18 @@
-﻿生成启动时间为 2016/12/23 19:44:48。
-     1>项目“D:\gles_demo\gles_demo.vcxproj”在节点 2 上(Build 个目标)。
+﻿生成启动时间为 2016/12/26 20:36:32。
+     1>项目“E:\gles_demo\gles_demo.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt core\gles\esUtil.cpp
-         esUtil.cpp
-     1>D:\gles_demo\core\rendering\Input.h(52): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
-     1>D:\gles_demo\core\rendering\Input.h(53): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
-     1>D:\gles_demo\core\rendering\Input.h(94): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>D:\gles_demo\core\rendering\Input.h(96): warning C4244: “return”: 从“int”转换到“float”，可能丢失数据
-     1>D:\gles_demo\core\rendering\Input.h(101): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>D:\gles_demo\core\rendering\Input.h(103): warning C4244: “return”: 从“int”转换到“float”，可能丢失数据
-     1>core\gles\esUtil.cpp(206): warning C4244: “初始化”: 从“WPARAM”转换到“char”，可能丢失数据
-     1>core\gles\esUtil.cpp(207): warning C4244: “初始化”: 从“LPARAM”转换到“unsigned int”，可能丢失数据
-     1>core\gles\esUtil.cpp(233): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
-     1>core\gles\esUtil.cpp(241): warning C4244: “初始化”: 从“WPARAM”转换到“char”，可能丢失数据
-     1>core\gles\esUtil.cpp(242): warning C4244: “初始化”: 从“LPARAM”转换到“unsigned int”，可能丢失数据
-     1>core\gles\esUtil.cpp(238): warning C4101: “point”: 未引用的局部变量
-     1>core\gles\esUtil.cpp(695): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt core\platform\win32\Device.cpp
+         Device.cpp
+     1>core\platform\win32\Device.cpp(46): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+     1>core\platform\win32\Device.cpp(92): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>core\platform\win32\Device.cpp(118): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>core\platform\win32\Device.cpp(119): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>core\platform\win32\Device.cpp(123): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>core\platform\win32\Device.cpp(125): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+     1>core\platform\win32\Device.cpp(272): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>core\platform\win32\Device.cpp(416): warning C4244: “初始化”: 从“const float”转换到“LONG”，可能丢失数据
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\gles_demo\x64\Debug\gles_demo.exe" /INCREMENTAL /NOLOGO libEGL.lib libGLESv2.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\gles_demo\x64\Debug\gles_demo.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\gles_demo\x64\Debug\gles_demo.lib" /MACHINE:X64 x64\Debug\esUtil.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\gles_demo\x64\Debug\gles_demo.exe" /INCREMENTAL /NOLOGO libEGL.lib libGLESv2.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\gles_demo\x64\Debug\gles_demo.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\gles_demo\x64\Debug\gles_demo.lib" /MACHINE:X64 x64\Debug\esUtil.obj
          x64\Debug\png.obj
          x64\Debug\pngerror.obj
          x64\Debug\pngget.obj
@@ -49,13 +44,16 @@
          x64\Debug\uncompr.obj
          x64\Debug\zutil.obj
          x64\Debug\glm.obj
+         x64\Debug\Device.obj
          x64\Debug\Camera.obj
          x64\Debug\cube.obj
+         x64\Debug\Label.obj
+         x64\Debug\Texture.obj
          x64\Debug\triangle.obj
          x64\Debug\main.obj
-         gles_demo.vcxproj -> D:\gles_demo\x64\Debug\gles_demo.exe
-     1>已完成生成项目“D:\gles_demo\gles_demo.vcxproj”(Build 个目标)的操作。
+         gles_demo.vcxproj -> E:\gles_demo\x64\Debug\gles_demo.exe
+     1>已完成生成项目“E:\gles_demo\gles_demo.vcxproj”(Build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:00.74
+已用时间 00:00:48.95

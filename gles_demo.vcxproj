@@ -28,13 +28,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -68,7 +68,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)/core/gles;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)/core/gles;$(ProjectDir)/core/;$(ProjectDir)/core/lib;$(ProjectDir)/core/math;$(ProjectDir)/core/rendering;$(ProjectDir)/core/lib/glfw3/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)/core/lib;$(LibraryPath)</LibraryPath>
+    <LibraryWPath>$(ProjectDir)/core/lib;$(LibraryWPath)</LibraryWPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -87,12 +89,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libEGL.lib;libGLESv2.lib;libMaliEmulator.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -179,8 +182,11 @@
     <ClCompile Include="core\lib\zlib\uncompr.c" />
     <ClCompile Include="core\lib\zlib\zutil.c" />
     <ClCompile Include="core\math\glm\detail\glm.cpp" />
+    <ClCompile Include="core\platform\win32\Device.cpp" />
     <ClCompile Include="core\rendering\Camera.cpp" />
     <ClCompile Include="core\rendering\cube.cpp" />
+    <ClCompile Include="core\rendering\Label.cpp" />
+    <ClCompile Include="core\rendering\Texture.cpp" />
     <ClCompile Include="core\rendering\triangle.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -197,6 +203,8 @@
     <ClInclude Include="core\gles\GLES3\gl3platform.h" />
     <ClInclude Include="core\gles\KHR\khrplatform.h" />
     <ClInclude Include="core\gles_include.h" />
+    <ClInclude Include="core\lib\glfw3\include\GLFW\glfw3.h" />
+    <ClInclude Include="core\lib\glfw3\include\GLFW\glfw3native.h" />
     <ClInclude Include="core\lib\libpng\png.h" />
     <ClInclude Include="core\lib\libpng\pngconf.h" />
     <ClInclude Include="core\lib\zlib\crc32.h" />
@@ -355,10 +363,14 @@
     <ClInclude Include="core\math\glm\vec3.hpp" />
     <ClInclude Include="core\math\glm\vec4.hpp" />
     <ClInclude Include="core\math\glm\vector_relational.hpp" />
+    <ClInclude Include="core\platform\Device.h" />
     <ClInclude Include="core\rendering\Camera.h" />
     <ClInclude Include="core\rendering\cube.h" />
     <ClInclude Include="core\rendering\Input.h" />
+    <ClInclude Include="core\rendering\Label.h" />
+    <ClInclude Include="core\rendering\Texture.h" />
     <ClInclude Include="core\rendering\triangle.h" />
+    <ClInclude Include="core\rendering\types.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="core\lib\libpng\libpng.vcproj" />

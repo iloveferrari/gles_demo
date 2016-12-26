@@ -29,3 +29,8 @@
 
 *.sdf
 *.suo
+
+*.ilk
+*.log
+*.tlog
+*.exe

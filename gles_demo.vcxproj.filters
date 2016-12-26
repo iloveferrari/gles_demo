@@ -50,6 +50,18 @@
     <Filter Include="core\lib\zlib">
       <UniqueIdentifier>{4fb5a294-1def-4b6d-945f-4bb4cdcd50fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core\lib\glfw3">
+      <UniqueIdentifier>{a93b6f88-315a-41da-94f7-01d1ce3e84ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\lib\glfw3\include">
+      <UniqueIdentifier>{46a66f38-2998-43a6-aad7-e157914f2e5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\lib\glfw3\include\GLFW">
+      <UniqueIdentifier>{b1e90035-a6d1-4c74-b277-8ccf34e0782d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\platform\win32">
+      <UniqueIdentifier>{3091e340-f784-4e49-8dc1-816da03c3817}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\math\glm\detail\glm.cpp">
@@ -159,6 +171,15 @@
     </ClCompile>
     <ClCompile Include="core\lib\zlib\zutil.c">
       <Filter>core\lib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="core\platform\win32\Device.cpp">
+      <Filter>core\platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="core\rendering\Label.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="core\rendering\Texture.cpp">
+      <Filter>core\rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -679,6 +700,24 @@
     </ClInclude>
     <ClInclude Include="core\lib\zlib\zutil.h">
       <Filter>core\lib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="core\lib\glfw3\include\GLFW\glfw3.h">
+      <Filter>core\lib\glfw3\include\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="core\lib\glfw3\include\GLFW\glfw3native.h">
+      <Filter>core\lib\glfw3\include\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="core\platform\Device.h">
+      <Filter>core\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="core\rendering\Label.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="core\rendering\Texture.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="core\rendering\types.h">
+      <Filter>core\rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

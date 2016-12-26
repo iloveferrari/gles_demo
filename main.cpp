@@ -24,45 +24,7 @@
 #include <stdlib.h>
 #include "core/gles_include.h"
 
-#include <rendering/Camera.h>
-#include <rendering/triangle.h>
-#include <rendering/Cube.h>
-
-#include <glm/gtc/matrix_transform.hpp>
-
-Camera _camera;
-Triangle _triangle;
-Cube     _cube;
-
-void Draw(ESContext *esContext)
-{
-	// Clear the color buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	_triangle.draw(esContext);
-	_cube.draw(esContext);
-
-	eglSwapBuffers(esContext->eglDisplay, esContext->eglSurface);
-	ValidateRect(esContext->eglNativeWindow, NULL);
-}
-
-void update(ESContext *esContext, float detlaTime)
-{
-	_camera.update(esContext, detlaTime);
-	Draw(esContext);
-}
-
-void init(ESContext *esContext)
-{
-	_camera.lookAt(esContext, glm::vec3(0, 0, 4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
-	_triangle.init();
-	_cube.init();
-
-	glEnable(GL_CULL_FACE);  // 不采用背面剔除
-	glEnable(GL_DEPTH_TEST);
-
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-}
+extern void esMain(ESContext *esContext);
 
 int main(int argc, char *argv[])
 {
@@ -70,13 +32,7 @@ int main(int argc, char *argv[])
 
 	memset(&esContext, 0, sizeof (ESContext));
 
-	esCreateWindow(&esContext, "gles_demo", 640, 480, ES_WINDOW_RGB | ES_WINDOW_DEPTH);
-
-	init(&esContext);
-
-	//esRegisterDrawFunc(&esContext, Draw);
-
-	esRegisterUpdateFunc(&esContext, update);
+	esMain(&esContext);
 
 	esStartLoop(&esContext);
 
