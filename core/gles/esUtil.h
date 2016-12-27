@@ -118,6 +118,7 @@ extern "C" {
 		glm::mat4   mode_view_matrix;
 		glm::mat4   perspective_matrix;
 		glm::mat4   mvp_matrix;
+		glm::mat4   ortho_matrix;
 
 #ifndef __APPLE__
 		/// Display handle

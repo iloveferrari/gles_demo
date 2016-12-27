@@ -243,7 +243,6 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_CHAR:
 	{
-		POINT      point;
 		ESContext *esContext = (ESContext *)(LONG_PTR)GetWindowLongPtr(hWnd, GWL_USERDATA);
 
 		char ascii_code = wParam; //获取按下的ASCII码
@@ -353,7 +352,7 @@ GLboolean WinCreate(ESContext *esContext, const char *title)
 	wndclass.lpfnWndProc = (WNDPROC)ESWindowProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wndclass.lpszClassName = L"opengles3.0";
+	wndclass.lpszClassName = "opengles3.0";
 
 	if (!RegisterClass(&wndclass))
 	{
@@ -934,7 +933,7 @@ void init(ESContext *esContext)
 	_camera.lookAt(esContext, glm::vec3(0, 0, 4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
 	_triangle.init();
 	_cube.init();
-	_label.initWithString("1234567890", "DFGB_Y7_0.ttf", 22);
+	_label.initWithString("123422222222567890", "DFGB_Y7_0.ttf", 22, 300, 100);
 
 	glEnable(GL_CULL_FACE);  // 不采用背面剔除
 	glEnable(GL_DEPTH_TEST);

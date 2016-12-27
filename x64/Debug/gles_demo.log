@@ -1,4 +1,4 @@
-﻿生成启动时间为 2016/12/26 20:36:32。
+﻿生成启动时间为 2016/12/27 19:57:36。
      1>项目“E:\gles_demo\gles_demo.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt core\platform\win32\Device.cpp
@@ -51,9 +51,83 @@
          x64\Debug\Texture.obj
          x64\Debug\triangle.obj
          x64\Debug\main.obj
-         gles_demo.vcxproj -> E:\gles_demo\x64\Debug\gles_demo.exe
-     1>已完成生成项目“E:\gles_demo\gles_demo.vcxproj”(Build 个目标)的操作。
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glAttachShader，该符号在函数 esLoadProgram 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glBindTexture，该符号在函数 loadTexture 中被引用
+     1>cube.obj : error LNK2001: 无法解析的外部符号 __imp_glBindTexture
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glBindTexture
+     1>Texture.obj : error LNK2001: 无法解析的外部符号 __imp_glBindTexture
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glClear，该符号在函数 "void __cdecl Draw(struct ESContext *)" (?Draw@@YAXPEAUESContext@@@Z) 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glClearColor，该符号在函数 "void __cdecl init(struct ESContext *)" (?init@@YAXPEAUESContext@@@Z) 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glCompileShader，该符号在函数 esLoadShader 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glCreateProgram，该符号在函数 esLoadProgram 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glCreateShader，该符号在函数 esLoadShader 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glDeleteProgram，该符号在函数 esLoadProgram 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glDeleteShader，该符号在函数 esLoadShader 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glEnable，该符号在函数 "void __cdecl init(struct ESContext *)" (?init@@YAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glEnable
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glGenTextures，该符号在函数 loadTexture 中被引用
+     1>Texture.obj : error LNK2001: 无法解析的外部符号 __imp_glGenTextures
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glGetProgramiv，该符号在函数 esLoadProgram 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glGetProgramInfoLog，该符号在函数 esLoadProgram 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glGetShaderiv，该符号在函数 esLoadShader 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glGetShaderInfoLog，该符号在函数 esLoadShader 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glLinkProgram，该符号在函数 esLoadProgram 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glPixelStorei，该符号在函数 loadTexture 中被引用
+     1>Texture.obj : error LNK2001: 无法解析的外部符号 __imp_glPixelStorei
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glShaderSource，该符号在函数 esLoadShader 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glTexImage2D，该符号在函数 loadTexture 中被引用
+     1>Texture.obj : error LNK2001: 无法解析的外部符号 __imp_glTexImage2D
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_glTexParameteri，该符号在函数 loadTexture 中被引用
+     1>Texture.obj : error LNK2001: 无法解析的外部符号 __imp_glTexParameteri
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglGetDisplay，该符号在函数 esCreateWindow 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglInitialize，该符号在函数 esCreateWindow 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglQueryString，该符号在函数 "int __cdecl GetContextRenderableType(void *)" (?GetContextRenderableType@@YAHPEAX@Z) 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglChooseConfig，该符号在函数 esCreateWindow 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglCreateWindowSurface，该符号在函数 esCreateWindow 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglCreateContext，该符号在函数 esCreateWindow 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglMakeCurrent，该符号在函数 esCreateWindow 中被引用
+     1>esUtil.obj : error LNK2019: 无法解析的外部符号 __imp_eglSwapBuffers，该符号在函数 ESWindowProc 中被引用
+     1>Camera.obj : error LNK2019: 无法解析的外部符号 __imp_glViewport，该符号在函数 "public: void __cdecl Camera::lookAt(struct ESContext *,struct glm::detail::tvec3<float,0>,struct glm::detail::tvec3<float,0>,struct glm::detail::tvec3<float,0>)" (?lookAt@Camera@@QEAAXPEAUESContext@@U?$tvec3@M$0A@@detail@glm@@11@Z) 中被引用
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glActiveTexture，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glActiveTexture
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glBindBuffer，该符号在函数 "public: unsigned char __cdecl Cube::init(void)" (?init@Cube@@QEAAEXZ) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glBindBuffer
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glBufferData，该符号在函数 "public: unsigned char __cdecl Cube::init(void)" (?init@Cube@@QEAAEXZ) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glBufferData
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glDisableVertexAttribArray，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glDisableVertexAttribArray
+     1>triangle.obj : error LNK2001: 无法解析的外部符号 __imp_glDisableVertexAttribArray
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glDrawElements，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glDrawElements
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glEnableVertexAttribArray，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glEnableVertexAttribArray
+     1>triangle.obj : error LNK2001: 无法解析的外部符号 __imp_glEnableVertexAttribArray
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glGenBuffers，该符号在函数 "public: unsigned char __cdecl Cube::init(void)" (?init@Cube@@QEAAEXZ) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glGenBuffers
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glGetUniformLocation，该符号在函数 "public: unsigned char __cdecl Cube::init(void)" (?init@Cube@@QEAAEXZ) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glGetUniformLocation
+     1>triangle.obj : error LNK2001: 无法解析的外部符号 __imp_glGetUniformLocation
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glUniform1i，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glUniform1i
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glUniformMatrix4fv，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glUniformMatrix4fv
+     1>triangle.obj : error LNK2001: 无法解析的外部符号 __imp_glUniformMatrix4fv
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glUseProgram，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glUseProgram
+     1>triangle.obj : error LNK2001: 无法解析的外部符号 __imp_glUseProgram
+     1>cube.obj : error LNK2019: 无法解析的外部符号 __imp_glVertexAttribPointer，该符号在函数 "public: void __cdecl Cube::draw(struct ESContext *)" (?draw@Cube@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2001: 无法解析的外部符号 __imp_glVertexAttribPointer
+     1>triangle.obj : error LNK2001: 无法解析的外部符号 __imp_glVertexAttribPointer
+     1>Label.obj : error LNK2019: 无法解析的外部符号 __imp_glBlendFunc，该符号在函数 "public: void __cdecl Label::draw(struct ESContext *)" (?draw@Label@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Label.obj : error LNK2019: 无法解析的外部符号 __imp_glDisable，该符号在函数 "public: void __cdecl Label::draw(struct ESContext *)" (?draw@Label@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>Texture.obj : error LNK2019: 无法解析的外部符号 __imp_glCompressedTexImage2D，该符号在函数 "public: bool __cdecl Texture::initWithData(void const *,unsigned __int64,enum PixelFormat,int,int,struct Size const &)" (?initWithData@Texture@@QEAA_NPEBX_KW4PixelFormat@@HHAEBUSize@@@Z) 中被引用
+     1>Texture.obj : error LNK2019: 无法解析的外部符号 __imp_glDeleteTextures，该符号在函数 "public: __cdecl Texture::~Texture(void)" (??1Texture@@QEAA@XZ) 中被引用
+     1>Texture.obj : error LNK2019: 无法解析的外部符号 __imp_glGetError，该符号在函数 "public: bool __cdecl Texture::initWithData(void const *,unsigned __int64,enum PixelFormat,int,int,struct Size const &)" (?initWithData@Texture@@QEAA_NPEBX_KW4PixelFormat@@HHAEBUSize@@@Z) 中被引用
+     1>triangle.obj : error LNK2019: 无法解析的外部符号 __imp_glDrawArrays，该符号在函数 "public: void __cdecl Triangle::draw(struct ESContext *)" (?draw@Triangle@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>triangle.obj : error LNK2019: 无法解析的外部符号 __imp_glVertexAttrib4fv，该符号在函数 "public: void __cdecl Triangle::draw(struct ESContext *)" (?draw@Triangle@@QEAAXPEAUESContext@@@Z) 中被引用
+     1>E:\gles_demo\x64\Debug\gles_demo.exe : fatal error LNK1120: 48 个无法解析的外部命令
+     1>已完成生成项目“E:\gles_demo\gles_demo.vcxproj”(Build 个目标)的操作 - 失败。
 
-生成成功。
+生成失败。
 
-已用时间 00:00:48.95
+已用时间 00:00:00.86

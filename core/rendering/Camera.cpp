@@ -38,6 +38,7 @@ void Camera::update(ESContext *esContext, float detlaTime)
 
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
 		esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
+		esContext->camera_matrix = m_cameraMatrix;
 	}
 
 	DIRECTION dir = Input::getInstance()->getMoveDirection();
@@ -76,6 +77,7 @@ void Camera::update(ESContext *esContext, float detlaTime)
 
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
 		esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
+		esContext->camera_matrix = m_cameraMatrix;
 	}
 
 	float scroll_dis = Input::getInstance()->getMouseWheelScroll();
@@ -103,6 +105,7 @@ void Camera::update(ESContext *esContext, float detlaTime)
 
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
 		esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
+		esContext->camera_matrix = m_cameraMatrix;
 	}
 }
 
@@ -133,5 +136,6 @@ void Camera::lookAt(ESContext *esContext, glm::vec3 eye, glm::vec3 center, glm::
 	m_position = eye;
 	m_cameraMatrix = glm::lookAt(eye, center, up);
 	esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
+	esContext->camera_matrix = m_cameraMatrix;
 	glViewport(0, 0, esContext->width, esContext->height);
 }

@@ -438,25 +438,25 @@ unsigned char * Device::getTextureDataForText(const char * text, const FontDefin
 		GetDIBits(dc.getDC(), dc.getBitmap(), 0, height, dataBuf,
 			(LPBITMAPINFO)&bi, DIB_RGB_COLORS);
 
-		// change pixel's alpha value to 255, when it's RGB != 0
-		//COLORREF * pPixel = nullptr;
-		//for (int y = 0; y < height; ++y)
-		//{
-		//	pPixel = (COLORREF *)dataBuf + y * width;
-		//	//printf("*pPixel %d\n", *pPixel);
-		//	for (int x = 0; x < width; ++x)
-		//	{
-		//		COLORREF& clr = *pPixel;
-		//		//printf("*pPixel %d\n", *pPixel);
-		//		//clr = (0xffffff | (GetRValue(clr) << 24));
-		//		char a = GetRValue(clr) << 0;
-		//		char b = GetRValue(clr) << 8;
-		//		char g = GetRValue(clr) << 16;
-		//		char r = GetRValue(clr) << 24;
-		//		//printf("x %d, y %d, r %d, g %d, b %d, a %d, *pPixel %d\n", x, y, r, g, b, a, *pPixel);
-		//		++pPixel;
-		//	}
-		//}
+		//change pixel's alpha value to 255, when it's RGB != 0
+		COLORREF * pPixel = nullptr;
+		for (int y = 0; y < height; ++y)
+		{
+			pPixel = (COLORREF *)dataBuf + y * width;
+			//printf("*pPixel %d\n", *pPixel);
+			for (int x = 0; x < width; ++x)
+			{
+				COLORREF& clr = *pPixel;
+				//printf("*pPixel %d\n", *pPixel);
+				//clr = (0xffffff | (GetRValue(clr) << 24));
+				unsigned char a = GetRValue(clr) << 24;
+				unsigned char b = GetBValue(clr);
+				unsigned char g = GetGValue(clr);
+				unsigned char r = GetRValue(clr);
+				printf("x %d, y %d, r %d, g %d, b %d, a %d, *pPixel %d\n", x, y, r, g, b, a, *pPixel);
+				++pPixel;
+			}
+		}
 
 		hasPremultipliedAlpha = false;
 	} while (0);
