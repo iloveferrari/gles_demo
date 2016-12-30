@@ -31,6 +31,21 @@
 
 #include <libpng/png.h>
 
+#include <rendering/Camera.h>
+#include <rendering/triangle.h>
+#include <rendering/Cube.h>
+#include <rendering/Label.h>
+
+#include <glm/gtc/matrix_transform.hpp>
+
+Camera _camera;
+Triangle _triangle;
+Cube     _cube;
+Label   _label;
+Label   _fpsLabel;
+
+int _interval = 60;;
+
 #define PI 3.1415926535897932384626433832795f
 
 #ifdef ANDROID
@@ -197,7 +212,7 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		ESContext *esContext = (ESContext *)(LONG_PTR)GetWindowLongPtr(hWnd, GWL_USERDATA);
 		if (esContext && esContext->drawFunc)
 		{
-			esContext->drawFunc(esContext);
+			//esContext->drawFunc(esContext);
 
 			eglSwapBuffers(esContext->eglDisplay, esContext->eglSurface);
 			ValidateRect(esContext->eglNativeWindow, NULL);
@@ -211,8 +226,8 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYUP:
 	{
-		char ascii_code = wParam;        //À…ø™µƒASCII¬Î
-		unsigned int key_state = lParam; //ªÒ»°∞¥œ¬µƒº¸◊¥Ã¨
+		char ascii_code = wParam;        //ÊùæÂºÄÁöÑASCIIÁ†Å
+		unsigned int key_state = lParam; //Ëé∑ÂèñÊåâ‰∏ãÁöÑÈîÆÁä∂ÊÄÅ
 
 		if (ascii_code == 'w' ||
 			ascii_code == 'W' ||
@@ -245,8 +260,8 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ESContext *esContext = (ESContext *)(LONG_PTR)GetWindowLongPtr(hWnd, GWL_USERDATA);
 
-		char ascii_code = wParam; //ªÒ»°∞¥œ¬µƒASCII¬Î
-		unsigned int key_state = lParam; //ªÒ»°∞¥œ¬µƒº¸◊¥Ã¨
+		char ascii_code = wParam; //Ëé∑ÂèñÊåâ‰∏ãÁöÑASCIIÁ†Å
+		unsigned int key_state = lParam; //Ëé∑ÂèñÊåâ‰∏ãÁöÑÈîÆÁä∂ÊÄÅ
 
 		//printf("%c ", ascii_code);
 
@@ -299,11 +314,23 @@ void esStartLoop(ESContext *esContext)
 	int done = 0;
 	DWORD lastTime = GetTickCount();
 
+	// Main message loop:
+	LARGE_INTEGER nFreq;
+	LARGE_INTEGER nLast;
+	LARGE_INTEGER nNow;
+
+	float deltaTime = 0.0f;
+
+	QueryPerformanceFrequency(&nFreq);
+	QueryPerformanceCounter(&nLast);
+
+	double oneCountTime = 1.0f / nFreq.QuadPart;
+	LONGLONG timeInterval = nFreq.QuadPart / _interval;
+
 	while (!done)
 	{
 		int gotMsg = (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != 0);
 		DWORD curTime = GetTickCount();
-		float deltaTime = (float)(curTime - lastTime) / 1000.0f;
 		lastTime = curTime;
 
 		if (gotMsg)
@@ -320,23 +347,31 @@ void esStartLoop(ESContext *esContext)
 		}
 		else
 		{
-			SendMessage(esContext->eglNativeWindow, WM_PAINT, 0, 0);
-		}
+			QueryPerformanceCounter(&nNow);
+			LONGLONG count = nNow.QuadPart - nLast.QuadPart;
+			if (count > timeInterval)
+			{
+				nLast.QuadPart = nNow.QuadPart;
 
-		// Call update function if registered
-		if (esContext->updateFunc != NULL)
-		{
-			esContext->updateFunc(esContext, deltaTime);
+				deltaTime = oneCountTime * count;
+
+				// Call update function if registered
+				if (esContext->updateFunc != NULL)
+				{
+					esContext->updateFunc(esContext, deltaTime);
+				}
+
+				SendMessage(esContext->eglNativeWindow, WM_PAINT, 0, 0);
+			}
+			else
+			{
+				Sleep(0);
+			}
 		}
 	}
 #endif
 }
 
-///
-//  WinCreate()
-//
-//      Create Win32 instance and window
-//
 GLboolean WinCreate(ESContext *esContext, const char *title)
 {
 #ifdef ANDROID
@@ -352,7 +387,7 @@ GLboolean WinCreate(ESContext *esContext, const char *title)
 	wndclass.lpfnWndProc = (WNDPROC)ESWindowProc;
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wndclass.lpszClassName = "opengles3.0";
+	wndclass.lpszClassName = L"opengles3.0";
 
 	if (!RegisterClass(&wndclass))
 	{
@@ -401,12 +436,6 @@ GLboolean WinCreate(ESContext *esContext, const char *title)
 
 	return GL_TRUE;
 }
-
-//////////////////////////////////////////////////////////////////
-//
-//  Public Functions
-//
-//
 
 ///
 //  esCreateWindow()
@@ -529,34 +558,21 @@ GLboolean ESUTIL_API esCreateWindow(ESContext *esContext, const char *title, GLi
 	return GL_TRUE;
 }
 
-///
-//  esRegisterDrawFunc()
-//
 void ESUTIL_API esRegisterDrawFunc(ESContext *esContext, void (ESCALLBACK *drawFunc) (ESContext *))
 {
 	esContext->drawFunc = drawFunc;
 }
 
-///
-//  esRegisterShutdownFunc()
-//
 void ESUTIL_API esRegisterShutdownFunc(ESContext *esContext, void (ESCALLBACK *shutdownFunc) (ESContext *))
 {
 	esContext->shutdownFunc = shutdownFunc;
 }
 
-///
-//  esRegisterUpdateFunc()
-//
 void ESUTIL_API esRegisterUpdateFunc(ESContext *esContext, void (ESCALLBACK *updateFunc) (ESContext *, float))
 {
 	esContext->updateFunc = updateFunc;
 }
 
-
-///
-//  esRegisterKeyFunc()
-//
 void ESUTIL_API esRegisterKeyFunc(ESContext *esContext,
 	void (ESCALLBACK *keyFunc) (ESContext *, unsigned char, int, int))
 {
@@ -569,12 +585,6 @@ void ESUTIL_API esRegisterTouchEventFunc(ESContext *esContext,
 	esContext->touchFunc = touchFunc;
 }
 
-
-///
-// esLogMessage()
-//
-//    Log an error message to the debug output for the platform
-//
 void ESUTIL_API esLogMessage(const char *formatStr, ...)
 {
 	va_list params;
@@ -592,11 +602,6 @@ void ESUTIL_API esLogMessage(const char *formatStr, ...)
 	va_end(params);
 }
 
-///
-// esFileRead()
-//
-//    Wrapper for platform specific File open
-//
 static esFile *esFileOpen(void *ioContext, const char *fileName)
 {
 	esFile *pFile = NULL;
@@ -621,11 +626,6 @@ static esFile *esFileOpen(void *ioContext, const char *fileName)
 	return pFile;
 }
 
-///
-// esFileRead()
-//
-//    Wrapper for platform specific File close
-//
 static void esFileClose(esFile *pFile)
 {
 	if (pFile != NULL)
@@ -639,11 +639,6 @@ static void esFileClose(esFile *pFile)
 	}
 }
 
-///
-// esFileRead()
-//
-//    Wrapper for platform specific File read
-//
 static int esFileRead(esFile *pFile, int bytesToRead, void *buffer)
 {
 	int bytesRead = 0;
@@ -662,11 +657,6 @@ static int esFileRead(esFile *pFile, int bytesToRead, void *buffer)
 	return bytesRead;
 }
 
-///
-// esLoadTGA()
-//
-//    Loads a 8-bit, 24-bit or 32-bit TGA image from a file
-//
 char *ESUTIL_API esLoadTGA(void *ioContext, const char *fileName, int *width, int *height)
 {
 	char        *buffer;
@@ -709,11 +699,6 @@ char *ESUTIL_API esLoadTGA(void *ioContext, const char *fileName, int *width, in
 	return (NULL);
 }
 
-/// \brief Load a shader, check for compile errors, print error messages to output log
-/// \param type Type of shader (GL_VERTEX_SHADER or GL_FRAGMENT_SHADER)
-/// \param shaderSrc Shader source string
-/// \return A new shader object on success, 0 on failure
-//
 GLuint ESUTIL_API esLoadShader(GLenum type, const char *shaderSrc)
 {
 	GLuint shader;
@@ -760,12 +745,6 @@ GLuint ESUTIL_API esLoadShader(GLenum type, const char *shaderSrc)
 
 }
 
-/// \brief Load a vertex and fragment shader, create a program object, link program.
-//         Errors output to log.
-/// \param vertShaderSrc Vertex shader source code
-/// \param fragShaderSrc Fragment shader source code
-/// \return A new program object linked with the vertex/fragment shader pair, 0 on failure
-//
 GLuint ESUTIL_API esLoadProgram(const char *vertShaderSrc, const char *fragShaderSrc)
 {
 	GLuint vertexShader;
@@ -900,17 +879,6 @@ GLuint loadTexture(const char *filename, int *width, int *height)
 	return tex;
 }
 
-#include <rendering/Camera.h>
-#include <rendering/triangle.h>
-#include <rendering/Cube.h>
-#include <rendering/Label.h>
-
-#include <glm/gtc/matrix_transform.hpp>
-
-Camera _camera;
-Triangle _triangle;
-Cube     _cube;
-Label   _label;
 
 void Draw(ESContext *esContext)
 {
@@ -919,13 +887,18 @@ void Draw(ESContext *esContext)
 
 	_triangle.draw(esContext);
 	_cube.draw(esContext);
-	_label.draw(esContext);
+
+	_fpsLabel.draw(esContext);
 }
 
 void update(ESContext *esContext, float detlaTime)
 {
 	_camera.update(esContext, detlaTime);
-	//Draw(esContext);
+	Draw(esContext);
+
+	char str[20] = { 0 };
+	sprintf(str, "fps %.2f", 1 / detlaTime);
+	_fpsLabel.setString(str);
 }
 
 void init(ESContext *esContext)
@@ -933,9 +906,12 @@ void init(ESContext *esContext)
 	_camera.lookAt(esContext, glm::vec3(0, 0, 4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
 	_triangle.init();
 	_cube.init();
-	_label.initWithString("123422222222567890", "DFGB_Y7_0.ttf", 22, 300, 100);
 
-	glEnable(GL_CULL_FACE);  // ≤ª≤…”√±≥√ÊÃﬁ≥˝
+	_fpsLabel.initWithString("fps: ", "DFGB_Y7_0.ttf", 20, 200, 50);
+	_fpsLabel.setPosition(60, 40);
+	_fpsLabel.setColor(Color3B(1.0f, 0.0f, 0.0f));
+
+	glEnable(GL_CULL_FACE);  // ‰∏çÈááÁî®ËÉåÈù¢ÂâîÈô§
 	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

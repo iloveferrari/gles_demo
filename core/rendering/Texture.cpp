@@ -25,7 +25,7 @@ bool Texture::initWithString(const char *text, const std::string& fontName, floa
 	tempDef._dimensions = dimensions;
 	tempDef._alignment = hAlignment;
 	tempDef._vertAlignment = vAlignment;
-	tempDef._fontFillColor = Color3B(255,255,255);
+	tempDef._fontFillColor = Color3B(1.0f, 1.0f, 1.0f);
 
 	return initWithString(text, tempDef);
 }

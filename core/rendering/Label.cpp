@@ -1,5 +1,6 @@
 #include "Label.h"
 #include <rendering/Texture.h>
+#include <math/glm/gtc/matrix_transform.hpp>
 
 #define POSITION_LOC    0
 #define TEXCOORD_LOC    1
@@ -10,46 +11,74 @@ Label::Label()
 	, m_height(0)
 	, m_vertexX(1.0f)
 	, m_vertexY(1.0f)
+	, m_textureId(0)
+	, m_color(Color3B(1.0f, 1.0f, 1.0f))
+	, m_colorLoc(0)
+	, m_indicesVBO(0)
+	, m_positionVBO(0)
+	, m_texCoordsVBO(0)
+	, m_positionX(0)
+	, m_positionY(0)
+	, m_isDirty(false)
 {
 
 }
 
 Label::~Label()
 {
+	if (m_textureId)
+	{
+		glDeleteBuffers(1, &m_textureId);
+	}
 
+	if (m_indicesVBO)
+	{
+		glDeleteBuffers(1, &m_indicesVBO);
+	}
+
+	if (m_positionVBO)
+	{
+		glDeleteBuffers(1, &m_positionVBO);
+	}
+
+	if (m_texCoordsVBO)
+	{
+		glDeleteBuffers(1, &m_texCoordsVBO);
+	}
 }
 
 bool Label::init()
 {
 	const char vShaderStr[] =
 		"#version 300 es										  \n"
-		"uniform mat4 u_mvpMatrix;								  \n"
+		"uniform mat4 u_transform;								  \n"
 		"layout(location = 0) in vec4 a_position;				  \n"
 		"layout(location = 1) in vec2 texCoord;					  \n"
 		"out vec2 v_texCoord;									  \n"
 		"void main()											  \n"
 		"{														  \n"
 		"    v_texCoord = texCoord;                               \n"
-		"    gl_Position = a_position;                            \n"
+		"    gl_Position = u_transform * a_position;              \n"
 		"}";
 
 
 	const char fShaderStr[] =
-		"#version 300 es									 \n"
-		"precision mediump float;							 \n"
-		"in vec2 v_texCoord;								 \n"
-		"out vec4 o_fragColor;								 \n"
-		"uniform sampler2D s_texture;                        \n"
-		"void main()										 \n"
-		"{													 \n"
-		"    o_fragColor = vec4(texture( s_texture, v_texCoord ).rgb, 0.0f); \n"
-		//"    o_fragColor = vec4(v_texCoord, 0, 1 ); \n"
+		"#version 300 es													  \n"
+		"precision mediump float;											  \n"
+		"in vec2 v_texCoord;												  \n"
+		"out vec4 o_fragColor;												  \n"
+		"uniform vec3 color;												  \n"
+		"uniform sampler2D s_texture;										  \n"
+		"void main()														  \n"
+		"{													                  \n"
+		"    o_fragColor = vec4(color, texture(s_texture, v_texCoord).a);     \n"
 		"}";                                                 
 
 	// Create the program object
 	m_program = esLoadProgram(vShaderStr, fShaderStr);
 	m_textureLoc = glGetUniformLocation(m_program, "s_texture");
-	m_mvpLoc = glGetUniformLocation(m_program, "u_mvpMatrix");
+	m_transformLoc = glGetUniformLocation(m_program, "u_transform");
+	m_colorLoc = glGetUniformLocation(m_program, "color");
 
 	return true;
 }
@@ -58,32 +87,32 @@ bool Label::initWithString(const char *text, const char *fontName, float fontSiz
 {
 	init();
 
-	FontDefinition textDefinition;
-	textDefinition._fontName = fontName;
-	textDefinition._fontSize = fontSize;
-	textDefinition._dimensions.width = width;
-	textDefinition._dimensions.height = height;
-	textDefinition._alignment = TextHAlignment::CENTER;
-	textDefinition._vertAlignment = TextVAlignment::CENTER;
-	textDefinition._fontFillColor = Color3B(255,255,255);
+	m_textDefinition._fontName = fontName;
+	m_textDefinition._fontSize = fontSize;
+	m_textDefinition._dimensions.width = width;
+	m_textDefinition._dimensions.height = height;
+	m_textDefinition._alignment = TextHAlignment::CENTER;
+	m_textDefinition._vertAlignment = TextVAlignment::CENTER;
+	m_textDefinition._fontFillColor = Color3B(1.0f, 1.0f, 1.0f);
 
 	m_width = width;
 	m_height = height;
 
-	Texture *texture = new Texture();
-	texture->initWithString(text, textDefinition);
-
-	m_textureId = texture->getTextureId();
+	setString(text);
 
 	m_vertexX = m_width * 1.0f / 640;
 	m_vertexY = m_height * 1.0f / 480;
 
-	GLfloat vertexPos[3 * 4] =
+	// ³õÊ¼Î»ÖÃÒÆµ½ÆÁÄ»×óÏÂ½Ç
+	float offsetX = m_width / 640 + 1.0f;
+	float offsetY = m_height / 480 + 1.0f;
+
+	GLfloat vertexPos[] =
 	{
-		 -m_vertexX,  m_vertexY, 0,      // v0
-		 -m_vertexX, -m_vertexY, 0,      // v1
-		  m_vertexX, -m_vertexY, 0,      // v2
-		  m_vertexX,  m_vertexY, 0,      // v3
+		-m_vertexX - offsetX,  m_vertexY - offsetY, 0,      // v0
+		-m_vertexX - offsetX, -m_vertexY - offsetY, 0,      // v1
+		 m_vertexX - offsetX, -m_vertexY - offsetY, 0,      // v2
+		 m_vertexX - offsetX,  m_vertexY - offsetY, 0,      // v3
 	};
 
 	GLfloat cubeTex[] =
@@ -96,18 +125,15 @@ bool Label::initWithString(const char *text, const char *fontName, float fontSiz
 
 	GLuint indices[4] = { 0, 1, 2, 3 };
 
-	// Index buffer for base terrain
 	glGenBuffers(1, &m_indicesVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indicesVBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof (GLuint), indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// Position VBO for base terrain
 	glGenBuffers(1, &m_positionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof (GLfloat)* 3, vertexPos, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof (GLfloat)* 4, vertexPos, GL_STATIC_DRAW);
 
-	// texCoord VBO for base terrain
 	glGenBuffers(1, &m_texCoordsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_texCoordsVBO);
 	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof (GLfloat)* 2, cubeTex, GL_STATIC_DRAW);
@@ -115,12 +141,53 @@ bool Label::initWithString(const char *text, const char *fontName, float fontSiz
 	return true;
 }
 
+void Label::setPosition(float x, float y)
+{
+	m_positionX = x;
+	m_positionY = y;
+
+	float offsetX = x * 2 / 640;
+	float offsetY = y * 2 / 480;
+
+	glm::mat4 originMat;
+	m_transform = glm::translate(originMat, glm::vec3(offsetX, offsetY, 0));
+}
+
+void Label::setString(const char *text)
+{
+	if (m_text.compare(text))
+	{
+		m_text = text;
+		m_isDirty = true;
+	}
+}
+
+void Label::setColor(Color3B color)
+{
+	m_color = color;
+}
+
 void Label::draw(ESContext *esContext)
 {
 	glUseProgram(m_program);
 
+	if (m_isDirty)
+	{
+		m_isDirty = false;
+		Texture *texture = new Texture();
+		texture->initWithString(m_text.c_str(), m_textDefinition);
+
+		if (m_textureId)
+		{
+			glDeleteTextures(1, &m_textureId);
+			m_textureId = 0;
+		}
+
+		m_textureId = texture->getTextureId();
+	}
+
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -146,9 +213,9 @@ void Label::draw(ESContext *esContext)
 	// Set the texture sampler to texture unit to 0
 	glUniform1i(m_textureLoc, 0);
 
-	// Load the MVP matrix
-	glm::mat4 mvp = esContext->perspective_matrix * esContext->camera_matrix;
-	glUniformMatrix4fv(m_mvpLoc, 1, GL_FALSE, &mvp[0][0]);
+	glUniform3f(m_colorLoc, m_color.r, m_color.g, m_color.b);
+
+	glUniformMatrix4fv(m_mvpLoc, 1, GL_FALSE, &m_transform[0][0]);
 
 	// Draw the cube
 	glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, (const void *)NULL);

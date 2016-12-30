@@ -32,11 +32,11 @@ struct Size
 
 struct Color3B
 {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
+	float r;
+	float g;
+	float b;
 
-	Color3B(unsigned char red, unsigned char green, unsigned char blue)
+	Color3B(float red, float green, float blue)
 	{
 		r = red;
 		g = green;

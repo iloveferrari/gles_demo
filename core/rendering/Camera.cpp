@@ -74,7 +74,7 @@ void Camera::update(ESContext *esContext, float detlaTime)
 		{
 			m_position += detlaTime * m_moveSpeed * glm::vec3(inverse_orientation * glm::vec4(0, -1, 0, 1));
 		}
-
+		
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
 		esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
 		esContext->camera_matrix = m_cameraMatrix;

@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2013-2014 Chukong Technologies Inc.
 
@@ -244,6 +244,51 @@ public:
 		return true;
 	}
 
+
+	// .CPP
+	// ANSI To UNCODE转换
+	wchar_t *AnsiToUnicode(const char * szAnsi)
+	{
+		wchar_t *str;
+		// ansi to unicode
+		//预转换，得到所需空间的大小
+		int wcsLen;
+		wcsLen = ::MultiByteToWideChar(CP_ACP, NULL, szAnsi, strlen(szAnsi), NULL, 0);
+		//分配空间要给'\0'留个空间，MultiByteToWideChar不会给'\0'空间
+		wchar_t* wszString = new wchar_t[wcsLen + 1];
+		//转换
+		::MultiByteToWideChar(CP_ACP, NULL, szAnsi, strlen(szAnsi), wszString, wcsLen);
+		//最后加上'\0'
+		wszString[wcsLen] = '\0';			// UNICODE字串
+		return wszString;
+	}
+
+	std::wstring UTF8ToUnicode(const std::string& szSrcText)
+	{
+		int  len = 0;
+		len = szSrcText.length();
+		int  unicodeLen = ::MultiByteToWideChar(CP_UTF8,
+			0,
+			szSrcText.c_str(),
+			-1,
+			NULL,
+			0);
+		wchar_t *  pUnicode;
+		pUnicode = new  wchar_t[unicodeLen + 1];
+		memset(pUnicode, 0, (unicodeLen + 1)*sizeof(wchar_t));
+		::MultiByteToWideChar(CP_UTF8,
+			0,
+			szSrcText.c_str(),
+			-1,
+			(LPWSTR)pUnicode,
+			unicodeLen);
+		std::wstring  rt;
+		rt = (wchar_t*)pUnicode;
+		//delete  pUnicode;
+		return  rt;
+	}
+
+
 	int drawText(const char * pszText, SIZE& tSize, Device::TextAlign eAlign)
 	{
 		int nRet = 0;
@@ -270,6 +315,7 @@ public:
 			}
 
 			int nLen = strlen(pszText);
+
 			// utf-8 to utf-16
 			int nBufLen = nLen + 1;
 			pwszBuffer = new wchar_t[nBufLen];
@@ -345,8 +391,9 @@ public:
 			SetTextColor(_DC, RGB(255, 255, 255)); // white color
 
 			// draw text
+
 			nRet = DrawTextW(_DC, pwszBuffer, nLen, &rcText, dwFmt);
-			//DrawTextA(_DC, pszText, nLen, &rcText, dwFmt);
+			//nRet = DrawTextA(_DC, pszText, nLen, &rcText, dwFmt);
 
 			SelectObject(_DC, hOldBmp);
 			SelectObject(_DC, hOldFont);
@@ -447,13 +494,7 @@ unsigned char * Device::getTextureDataForText(const char * text, const FontDefin
 			for (int x = 0; x < width; ++x)
 			{
 				COLORREF& clr = *pPixel;
-				//printf("*pPixel %d\n", *pPixel);
-				//clr = (0xffffff | (GetRValue(clr) << 24));
-				unsigned char a = GetRValue(clr) << 24;
-				unsigned char b = GetBValue(clr);
-				unsigned char g = GetGValue(clr);
-				unsigned char r = GetRValue(clr);
-				printf("x %d, y %d, r %d, g %d, b %d, a %d, *pPixel %d\n", x, y, r, g, b, a, *pPixel);
+				clr = (0xffffff | (GetRValue(clr) << 24));
 				++pPixel;
 			}
 		}
