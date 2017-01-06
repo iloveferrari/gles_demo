@@ -35,6 +35,7 @@
 #include <rendering/triangle.h>
 #include <rendering/Cube.h>
 #include <rendering/Label.h>
+#include <rendering/Terrain.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -43,6 +44,7 @@ Triangle _triangle;
 Cube     _cube;
 Label   _label;
 Label   _fpsLabel;
+Terrain _terrain;
 
 int _interval = 60;;
 
@@ -888,6 +890,8 @@ void Draw(ESContext *esContext)
 	_triangle.draw(esContext);
 	_cube.draw(esContext);
 
+	_terrain.draw(esContext);
+
 	_fpsLabel.draw(esContext);
 }
 
@@ -903,9 +907,10 @@ void update(ESContext *esContext, float detlaTime)
 
 void init(ESContext *esContext)
 {
-	_camera.lookAt(esContext, glm::vec3(0, 0, 4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
+	_camera.lookAt(esContext, glm::vec3(0, 2, -4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
 	_triangle.init();
 	_cube.init();
+	_terrain.init();
 
 	_fpsLabel.initWithString("fps: ", "DFGB_Y7_0.ttf", 20, 200, 50);
 	_fpsLabel.setPosition(60, 40);

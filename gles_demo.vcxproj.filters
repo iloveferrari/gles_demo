@@ -181,6 +181,9 @@
     <ClCompile Include="core\rendering\Texture.cpp">
       <Filter>core\rendering</Filter>
     </ClCompile>
+    <ClCompile Include="core\rendering\Terrain.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="core\math\glm\CMakeLists.txt">
@@ -717,6 +720,9 @@
       <Filter>core\rendering</Filter>
     </ClInclude>
     <ClInclude Include="core\rendering\types.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="core\rendering\Terrain.h">
       <Filter>core\rendering</Filter>
     </ClInclude>
   </ItemGroup>

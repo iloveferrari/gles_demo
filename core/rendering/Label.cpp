@@ -217,7 +217,6 @@ void Label::draw(ESContext *esContext)
 
 	glUniformMatrix4fv(m_transformLoc, 1, GL_FALSE, &m_transform[0][0]);
 
-	// Draw the cube
 	glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, (const void *)NULL);
 
 	glDisableVertexAttribArray(POSITION_LOC);

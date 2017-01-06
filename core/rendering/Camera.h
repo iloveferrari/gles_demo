@@ -17,6 +17,8 @@ private:
 	float m_sensitivity;
 	float m_horizontalAngle;
 	float m_verticalAngle;
+	float m_baseHorizontalAngle;
+	float m_baseVerticalAngle;
 
 	glm::vec3 m_position;
 	float m_moveSpeed;
