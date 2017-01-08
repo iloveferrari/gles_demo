@@ -35,7 +35,7 @@ void Camera::update(ESContext *esContext, float detlaTime)
 		normalizeAngles();
 
 		glm::mat4 orientation;
-		orientation = glm::rotate(orientation, m_verticalAngle,   glm::vec3(1, 0, 0));
+		orientation = glm::rotate(orientation, m_verticalAngle + m_baseVerticalAngle,   glm::vec3(1, 0, 0));
 		orientation = glm::rotate(orientation, m_horizontalAngle + m_baseHorizontalAngle, glm::vec3(0, 1, 0));
 
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
@@ -48,33 +48,40 @@ void Camera::update(ESContext *esContext, float detlaTime)
 	if (dir != NOINPUT)
 	{
 		glm::mat4 orientation;
-		orientation = glm::rotate(orientation, m_verticalAngle, glm::vec3(1, 0, 0));
+		orientation = glm::rotate(orientation, m_verticalAngle + m_baseVerticalAngle, glm::vec3(1, 0, 0));
 		orientation = glm::rotate(orientation, m_horizontalAngle + m_baseHorizontalAngle, glm::vec3(0, 1, 0));
 		glm::mat4 inverse_orientation = glm::inverse(orientation);
 
+		float speed = m_moveSpeed;
+
+		if (Input::getInstance()->getKeyState(ACCELERATE_CLICK))
+		{
+			speed = 10 * m_moveSpeed;
+		}
+
 		if (dir == FORWARD)
 		{
-			m_position += detlaTime * m_moveSpeed * glm::vec3(inverse_orientation * glm::vec4(0, 0, -1, 1));
+			m_position += detlaTime * speed * glm::vec3(inverse_orientation * glm::vec4(0, 0, -1, 1));
 		}
 		else if (dir == BACK)
 		{
-			m_position += detlaTime * m_moveSpeed * glm::vec3(inverse_orientation * glm::vec4(0, 0, 1, 1));
+			m_position += detlaTime * speed * glm::vec3(inverse_orientation * glm::vec4(0, 0, 1, 1));
 		}
 		else if (dir == LEFT)
 		{
-			m_position += detlaTime * m_moveSpeed * glm::vec3(inverse_orientation * glm::vec4(-1, 0, 0, 1));
+			m_position += detlaTime * speed * glm::vec3(inverse_orientation * glm::vec4(-1, 0, 0, 1));
 		}
 		else if (dir == RIGHT)
 		{
-			m_position += detlaTime * m_moveSpeed * glm::vec3(inverse_orientation * glm::vec4(1, 0, 0, 1));
+			m_position += detlaTime * speed * glm::vec3(inverse_orientation * glm::vec4(1, 0, 0, 1));
 		}
 		else if (dir == UP)
 		{
-			m_position += detlaTime * m_moveSpeed * glm::vec3(inverse_orientation * glm::vec4(0, 1, 0, 1));
+			m_position += detlaTime * speed * glm::vec3(inverse_orientation * glm::vec4(0, 1, 0, 1));
 		}
 		else if (dir == DOWN)
 		{
-			m_position += detlaTime * m_moveSpeed * glm::vec3(inverse_orientation * glm::vec4(0, -1, 0, 1));
+			m_position += detlaTime * speed * glm::vec3(inverse_orientation * glm::vec4(0, -1, 0, 1));
 		}
 		
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
@@ -102,7 +109,7 @@ void Camera::update(ESContext *esContext, float detlaTime)
 		esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 100.0f);
 
 		glm::mat4 orientation;
-		orientation = glm::rotate(orientation, m_verticalAngle, glm::vec3(1, 0, 0));
+		orientation = glm::rotate(orientation, m_verticalAngle + m_baseVerticalAngle, glm::vec3(1, 0, 0));
 		orientation = glm::rotate(orientation, m_horizontalAngle + m_baseHorizontalAngle, glm::vec3(0, 1, 0));
 
 		m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
@@ -132,19 +139,9 @@ void Camera::normalizeAngles() {
 void Camera::lookAt(ESContext *esContext, glm::vec3 eye, glm::vec3 center, glm::vec3 up)
 {
 	float    aspect;
-	glm::vec3 origin(0, 0, -1);
-	glm::vec3 normalEye = glm::normalize(center - eye);
-
-	m_baseHorizontalAngle = acos(-normalEye.z) / 3.1415926 * 180;
-
-	glm::mat4 temp;
-	temp = glm::rotate(temp, m_baseHorizontalAngle, glm::vec3(0, 1, 0));
-
-	glm::vec4 v = glm::vec4(normalEye.x, normalEye.y, -normalEye.z, 1) * temp;
-	//m_baseVerticalAngle = acos(v.z) / 3.1415926 * 180;;
 
 	aspect = (GLfloat)esContext->width / (GLfloat)esContext->height;
-	esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 100.0f);
+	esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 1000.0f);
 	m_position = eye;
 
 	m_verticalAngle = 0;
@@ -152,11 +149,40 @@ void Camera::lookAt(ESContext *esContext, glm::vec3 eye, glm::vec3 center, glm::
 
 	normalizeAngles();
 
-	glm::mat4 orientation;
-	orientation = glm::rotate(orientation, m_verticalAngle + m_baseVerticalAngle, glm::vec3(1, 0, 0));
-	orientation = glm::rotate(orientation, m_horizontalAngle + m_baseHorizontalAngle, glm::vec3(0, 1, 0));
+	m_cameraMatrix = glm::lookAt(eye, center, up);
 
-	m_cameraMatrix = orientation * glm::translate(glm::mat4(), -m_position);
+	glm::vec3 z = glm::normalize(center - eye);
+
+	glm::mat4 orientation;
+
+	glm::vec3 originZAxis(0, 0, 1);
+	glm::vec3 targetZAxis = glm::normalize(glm::vec3(m_cameraMatrix[0][2], 0, m_cameraMatrix[2][2]));
+	float yAxisRotateRadian = acos(originZAxis.x * targetZAxis.x + originZAxis.y * targetZAxis.y + originZAxis.z * targetZAxis.z);
+	m_baseHorizontalAngle = yAxisRotateRadian / 3.1415926 * 180;
+
+	glm::vec3 rotateAxis = glm::normalize(glm::cross(originZAxis, targetZAxis));
+	if (rotateAxis == glm::vec3(0, 1, 0))
+	{
+		m_baseHorizontalAngle = -m_baseHorizontalAngle;
+	}
+
+	orientation = glm::rotate(orientation, m_baseHorizontalAngle, glm::vec3(0, 1, 0));
+
+	originZAxis = glm::normalize(glm::vec3(orientation[0][2], orientation[1][2], orientation[2][2]));
+	targetZAxis = glm::normalize(glm::vec3(m_cameraMatrix[0][2], m_cameraMatrix[1][2], m_cameraMatrix[2][2]));
+
+	float xAxisRotateRadian = acos(originZAxis.x * targetZAxis.x + originZAxis.y * targetZAxis.y + originZAxis.z * targetZAxis.z);
+	m_baseVerticalAngle = xAxisRotateRadian / 3.1415926 * 180;
+
+	rotateAxis = glm::normalize(glm::cross(originZAxis, targetZAxis));
+
+	orientation = glm::rotate(orientation, m_baseVerticalAngle, rotateAxis);
+	glm::vec3 resultZAxis = glm::vec3(orientation[0][2], orientation[1][2], orientation[2][2]);
+	if (resultZAxis.x - targetZAxis.x > 0.0001 || resultZAxis.y - targetZAxis.y > 0.0001 || resultZAxis.z - targetZAxis.z > 0.0001)
+	{
+		m_baseVerticalAngle = -m_baseVerticalAngle;
+	}
+
 	esContext->mvp_matrix = esContext->perspective_matrix * m_cameraMatrix;
 	esContext->camera_matrix = m_cameraMatrix;
 

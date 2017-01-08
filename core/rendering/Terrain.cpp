@@ -10,7 +10,7 @@ using namespace std;
 Terrain::Terrain()
 {
 	m_step = 2.0f;
-	m_minZ = -60.0f;
+	m_minZ = -80.0f;
 	m_scale = 0.54f;
 
 	m_indicesVBO = 0;
@@ -113,8 +113,8 @@ int Terrain::genSquareGrid(int size, GLfloat **vertices, GLfloat **normals, GLui
 			for (j = 0; j < size; ++j) // column
 			{
 				(*vertices)[3 * (j + i * size)] = i * m_step;
-				(*vertices)[3 * (j + i * size) + 1] = j * m_step;
-				(*vertices)[3 * (j + i * size) + 2] = m_minZ + m_scale * buffer[i];
+				(*vertices)[3 * (j + i * size) + 1] = m_minZ + m_scale * buffer[j + i * size];
+				(*vertices)[3 * (j + i * size) + 2] = j * m_step;
 			}
 		}
 	}

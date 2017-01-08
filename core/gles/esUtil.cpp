@@ -129,6 +129,7 @@ EGLint GetContextRenderableType(EGLDisplay eglDisplay)
 LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT  lRet = 1;
+	unsigned int key_state = lParam; //获取按下的键状态
 
 	switch (uMsg)
 	{
@@ -226,10 +227,22 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 
+	case WM_KEYDOWN:
+	{
+		if (GetAsyncKeyState(VK_SHIFT))
+		{
+			Input::getInstance()->updateKeys(ACCELERATE_CLICK, true);
+		}
+	}
+
 	case WM_KEYUP:
 	{
 		char ascii_code = wParam;        //松开的ASCII码
-		unsigned int key_state = lParam; //获取按下的键状态
+
+		if (!GetAsyncKeyState(VK_SHIFT))
+		{
+			Input::getInstance()->updateKeys(ACCELERATE_CLICK, false);
+		}
 
 		if (ascii_code == 'w' ||
 			ascii_code == 'W' ||
@@ -261,12 +274,8 @@ LRESULT WINAPI ESWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 	{
 		ESContext *esContext = (ESContext *)(LONG_PTR)GetWindowLongPtr(hWnd, GWL_USERDATA);
-
 		char ascii_code = wParam; //获取按下的ASCII码
-		unsigned int key_state = lParam; //获取按下的键状态
-
-		//printf("%c ", ascii_code);
-
+		
 		if (ascii_code == 'w')
 		{
 			Input::getInstance()->updateMoveDirection(FORWARD);
@@ -907,7 +916,7 @@ void update(ESContext *esContext, float detlaTime)
 
 void init(ESContext *esContext)
 {
-	_camera.lookAt(esContext, glm::vec3(0, 2, -4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
+	_camera.lookAt(esContext, glm::vec3(-2, -2, -4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
 	_triangle.init();
 	_cube.init();
 	_terrain.init();
