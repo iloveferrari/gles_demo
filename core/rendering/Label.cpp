@@ -100,12 +100,12 @@ bool Label::initWithString(const char *text, const char *fontName, float fontSiz
 
 	setString(text);
 
-	m_vertexX = m_width * 1.0f / 640;
-	m_vertexY = m_height * 1.0f / 480;
+	m_vertexX = m_width * 1.0f / g_winWidth;
+	m_vertexY = m_height * 1.0f / g_winHeight;
 
 	// 初始位置移到屏幕左下角
-	float offsetX = m_width / 640 + 1.0f;
-	float offsetY = m_height / 480 + 1.0f;
+	float offsetX = m_width / g_winWidth + 1.0f;
+	float offsetY = m_height / g_winHeight + 1.0f;
 
 	GLfloat vertexPos[] =
 	{
@@ -146,8 +146,8 @@ void Label::setPosition(float x, float y)
 	m_positionX = x;
 	m_positionY = y;
 
-	float offsetX = x * 2 / 640;
-	float offsetY = y * 2 / 480;
+	float offsetX = x * 2 / g_winWidth;
+	float offsetY = y * 2 / g_winHeight;
 
 	glm::mat4 originMat;
 	m_transform = glm::translate(originMat, glm::vec3(offsetX, offsetY, 0));

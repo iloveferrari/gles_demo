@@ -46,6 +46,9 @@
 #endif
 #ifdef __cplusplus
 
+const int g_winWidth = 1136;
+const int g_winHeight = 640;
+
 extern "C" {
 #endif
 

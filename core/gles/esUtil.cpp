@@ -933,7 +933,7 @@ void init(ESContext *esContext)
 
 void esMain(ESContext *esContext)
 {
-	esCreateWindow(esContext, "gles_demo", 640, 480, ES_WINDOW_RGB | ES_WINDOW_DEPTH);
+	esCreateWindow(esContext, "gles_demo", g_winWidth, g_winHeight, ES_WINDOW_RGB | ES_WINDOW_DEPTH);
 
 	init(esContext);
 
