@@ -11,7 +11,7 @@ using namespace std;
 Terrain::Terrain()
 {
 	m_step = 2.0f;
-	m_minZ = -80.0f;
+	m_minZ = 0.0f;
 	m_scale = 0.54f;
 
 	m_indicesVBO = 0;
@@ -36,32 +36,35 @@ void Terrain::init()
 		"uniform vec3 u_lightDirection;                       \n"
 		"layout(location = 0) in vec4 a_position;             \n"
 		"layout(location = 1) in vec2 a_texCoord;             \n"
-		"layout(location = 2) in vec2 a_normal;               \n"
+		"layout(location = 2) in vec3 a_normal;               \n"
+		"out float diffuse;                                   \n"
 		"out vec2 v_texCoord;                                 \n"
 		"void main()                                          \n"
 		"{                                                    \n"
 		"                                                     \n"
 		"   // compute diffuse lighting                       \n"
-		//"   float diffuse = dot( normal, u_lightDirection );  \n"
+		"   diffuse = dot(a_normal, u_lightDirection);        \n"
 		"   v_texCoord = a_texCoord;                          \n"
 		"   gl_Position = u_mvpMatrix * a_position;           \n"
 		"}                                                    \n";
 
 	const char fShaderStr[] =
-		"#version 300 es                                      \n"
-		"precision mediump float;                             \n"
-		"in vec2 v_texCoord;                                  \n"
-		"layout(location = 0) out vec4 outColor;              \n"
-		"uniform sampler2D s_texture;                         \n"
-		"void main()                                          \n"
-		"{                                                    \n"
-		"  outColor = texture(s_texture, v_texCoord);         \n"
-		"}                                                    \n";
+		"#version 300 es                                        \n"
+		"precision mediump float;                               \n"
+		"in vec2 v_texCoord;                                    \n"
+		"in float diffuse;                                      \n"
+		"layout(location = 0) out vec4 outColor;                \n"
+		"uniform sampler2D s_texture;                           \n"
+		"void main()                                            \n"
+		"{                                                      \n"
+		"  outColor = texture(s_texture, v_texCoord) * diffuse; \n"
+		"}                                                      \n";
 
 	m_program = esLoadProgram(vShaderStr, fShaderStr);
 
 	m_mvpLoc = glGetUniformLocation(m_program, "u_mvpMatrix");
 	m_textureLoc = glGetUniformLocation(m_program, "s_texture");
+	m_lightLoc = glGetUniformLocation(m_program, "u_lightDirection");
 
 	unsigned char *buffer = loadBMP("ground.bmp", &m_width, &m_height);
 	m_numIndices = genSquareGrid(m_width, &positions, &texCoords, &normals, &indices, buffer);
@@ -99,6 +102,8 @@ void Terrain::draw(ESContext *esContext)
 {
 	glUseProgram(m_program);
 
+	glEnable(GL_CULL_FACE);
+
 	// Load the vertex position
 	glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
 	glVertexAttribPointer(POSITION_LOC, 3, GL_FLOAT,
@@ -129,12 +134,16 @@ void Terrain::draw(ESContext *esContext)
 	// Set the texture sampler to texture unit to 0
 	glUniform1i(m_textureLoc, 0);
 
+	glUniform3f(m_lightLoc, 0.86f, 0.64f, 0.49f);
+
 	glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, (const void *)NULL);
 
 	glDisableVertexAttribArray(POSITION_LOC);
 	glDisableVertexAttribArray(TEXCOORD_LOC);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glDisable(GL_CULL_FACE);
 }
 
 int Terrain::genSquareGrid(int size, GLfloat **vertices, GLfloat **texCoord, GLfloat **normals, GLuint **indices, unsigned char *buffer)

@@ -87,7 +87,7 @@ GLboolean Cube::init()
 	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof (GLfloat)* 2, texCoords, GL_STATIC_DRAW);
 	free(texCoords);
 
-	m_modelMatrix = glm::translate(glm::vec3(0, 0, 0));
+	m_modelMatrix = glm::translate(glm::vec3(60, 80, 80));
 
 	return GL_TRUE;
 }
@@ -119,7 +119,7 @@ void Cube::draw(ESContext *esContext)
 	glUniform1i(m_textureLoc, 0);
 
 	// Load the MVP matrix
-	glm::mat4 mvp = esContext->mvp_matrix;
+	glm::mat4 mvp = esContext->mvp_matrix * m_modelMatrix;
 	glUniformMatrix4fv(m_mvpLoc, 1, GL_FALSE, &mvp[0][0]);
 
 	// Draw the cube

@@ -184,6 +184,12 @@
     <ClCompile Include="core\rendering\Terrain.cpp">
       <Filter>core\rendering</Filter>
     </ClCompile>
+    <ClCompile Include="core\rendering\Sky.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="core\rendering\Panel.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="core\math\glm\CMakeLists.txt">
@@ -723,6 +729,12 @@
       <Filter>core\rendering</Filter>
     </ClInclude>
     <ClInclude Include="core\rendering\Terrain.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="core\rendering\Sky.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="core\rendering\Panel.h">
       <Filter>core\rendering</Filter>
     </ClInclude>
   </ItemGroup>

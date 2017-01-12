@@ -20,6 +20,7 @@ Label::Label()
 	, m_positionX(0)
 	, m_positionY(0)
 	, m_isDirty(false)
+	, m_texture(nullptr)
 {
 
 }
@@ -173,9 +174,14 @@ void Label::draw(ESContext *esContext)
 
 	if (m_isDirty)
 	{
+		if (m_texture)
+		{
+			delete m_texture;
+		}
+
 		m_isDirty = false;
-		Texture *texture = new Texture();
-		texture->initWithString(m_text.c_str(), m_textDefinition);
+		m_texture = new Texture();
+		m_texture->initWithString(m_text.c_str(), m_textDefinition);
 
 		if (m_textureId)
 		{
@@ -183,7 +189,7 @@ void Label::draw(ESContext *esContext)
 			m_textureId = 0;
 		}
 
-		m_textureId = texture->getTextureId();
+		m_textureId = m_texture->getTextureId();
 	}
 
 	glEnable(GL_BLEND);

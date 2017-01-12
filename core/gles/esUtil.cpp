@@ -36,6 +36,8 @@
 #include <rendering/Cube.h>
 #include <rendering/Label.h>
 #include <rendering/Terrain.h>
+#include <rendering/Sky.h>
+#include <rendering/Panel.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -45,6 +47,8 @@ Cube     _cube;
 Label   _label;
 Label   _fpsLabel;
 Terrain _terrain;
+Sky     _sky;
+Panel   _panel;
 
 int _interval = 60;;
 
@@ -896,8 +900,12 @@ void Draw(ESContext *esContext)
 	// Clear the color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	_panel.draw(esContext);
+	_sky.draw(esContext);
+
 	_triangle.draw(esContext);
 	_cube.draw(esContext);
+
 
 	_terrain.draw(esContext);
 
@@ -916,16 +924,18 @@ void update(ESContext *esContext, float detlaTime)
 
 void init(ESContext *esContext)
 {
-	_camera.lookAt(esContext, glm::vec3(-2, -2, -4), glm::vec3(0, 0, -0.1), glm::vec3(0, 1, 0));
+	_camera.lookAt(esContext, glm::vec3(60, 100, 200), glm::vec3(240, 100, -0.1), glm::vec3(0, 1, 0));
 	_triangle.init();
 	_cube.init();
 	_terrain.init();
+	_sky.init();
+	_panel.init();
 
 	_fpsLabel.initWithString("fps: ", "DFGB_Y7_0.ttf", 20, 200, 50);
 	_fpsLabel.setPosition(60, 40);
 	_fpsLabel.setColor(Color3B(1.0f, 0.0f, 0.0f));
 
-	glEnable(GL_CULL_FACE);  // 不采用背面剔除
+	//glEnable(GL_CULL_FACE);  // 不采用背面剔除
 	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

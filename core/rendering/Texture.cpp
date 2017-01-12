@@ -85,10 +85,11 @@ bool Texture::initWithString(const char *text, const FontDefinition& textDefinit
 
 	ret = initWithData(outTempData, outTempDataLen, pixelFormat, imageWidth, imageHeight, imageSize);
 
-	if (outTempData != nullptr && outTempData != buffer)
+	if (buffer != nullptr)
 	{
-		free(outTempData);
+		free(buffer);
 	}
+
 	//_hasPremultipliedAlpha = hasPremultipliedAlpha;
 
 	return ret;

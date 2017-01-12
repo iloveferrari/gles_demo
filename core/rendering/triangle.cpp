@@ -47,7 +47,7 @@ GLboolean Triangle::init()
 		return GL_FALSE;
 	}
 
-	m_modelMatrix = glm::translate(glm::vec3(0, 0, 0));
+	m_modelMatrix = glm::translate(glm::vec3(60, 80, 80));
 
 	return GL_TRUE;
 }
@@ -70,7 +70,7 @@ void Triangle::draw(ESContext *esContext)
 	glVertexAttrib4fv(1, color);
 
 	// Load the MVP matrix
-	glm::mat4 mvp = esContext->mvp_matrix;
+	glm::mat4 mvp = esContext->mvp_matrix * m_modelMatrix;
 	glUniformMatrix4fv(m_mvpLoc, 1, GL_FALSE, &mvp[0][0]);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);

@@ -192,6 +192,8 @@
     <ClCompile Include="core\rendering\Camera.cpp" />
     <ClCompile Include="core\rendering\cube.cpp" />
     <ClCompile Include="core\rendering\Label.cpp" />
+    <ClCompile Include="core\rendering\Panel.cpp" />
+    <ClCompile Include="core\rendering\Sky.cpp" />
     <ClCompile Include="core\rendering\Terrain.cpp" />
     <ClCompile Include="core\rendering\Texture.cpp" />
     <ClCompile Include="core\rendering\triangle.cpp" />
@@ -375,6 +377,8 @@
     <ClInclude Include="core\rendering\cube.h" />
     <ClInclude Include="core\rendering\Input.h" />
     <ClInclude Include="core\rendering\Label.h" />
+    <ClInclude Include="core\rendering\Panel.h" />
+    <ClInclude Include="core\rendering\Sky.h" />
     <ClInclude Include="core\rendering\Terrain.h" />
     <ClInclude Include="core\rendering\Texture.h" />
     <ClInclude Include="core\rendering\triangle.h" />

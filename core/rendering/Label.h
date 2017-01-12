@@ -6,6 +6,8 @@
 #include <rendering/types.h>
 #include <math/glm/glm.hpp>
 
+class Texture;
+
 class Label
 {
 public:
@@ -50,6 +52,8 @@ private:
 	float m_positionY;
 
 	bool m_isDirty;
+
+	Texture *m_texture;
 
 	std::string m_text;
 

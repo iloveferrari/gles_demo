@@ -141,7 +141,7 @@ void Camera::lookAt(ESContext *esContext, glm::vec3 eye, glm::vec3 center, glm::
 	float    aspect;
 
 	aspect = (GLfloat)esContext->width / (GLfloat)esContext->height;
-	esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 1000.0f);
+	esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 100000.0f);
 	m_position = eye;
 
 	m_verticalAngle = 0;

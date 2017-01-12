@@ -23,7 +23,9 @@ private:
 	GLuint m_textureId;
 	
 	GLint  m_mvpLoc;
-	GLint m_textureLoc;
+	GLint  m_textureLoc;
+	GLint  m_lightLoc;
+
 	GLuint m_indicesVBO;
 	GLuint m_positionVBO;
 	GLuint m_normalsVBO;
