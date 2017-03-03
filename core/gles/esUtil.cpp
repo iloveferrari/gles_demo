@@ -924,7 +924,7 @@ void update(ESContext *esContext, float detlaTime)
 
 void init(ESContext *esContext)
 {
-	_camera.lookAt(esContext, glm::vec3(60, 100, 200), glm::vec3(240, 100, -0.1), glm::vec3(0, 1, 0));
+	_camera.lookAt(esContext, glm::vec3(0, 0, 0), glm::vec3(240, 100, -0.1), glm::vec3(0, 1, 0));
 	_triangle.init();
 	_cube.init();
 	_terrain.init();
@@ -935,10 +935,10 @@ void init(ESContext *esContext)
 	_fpsLabel.setPosition(60, 40);
 	_fpsLabel.setColor(Color3B(1.0f, 0.0f, 0.0f));
 
-	//glEnable(GL_CULL_FACE);  // 不采用背面剔除
+	glEnable(GL_CULL_FACE);  // 不采用背面剔除
 	glEnable(GL_DEPTH_TEST);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(155.0f, 155.0f, 155.0f, 0.0f);
 }
 
 void esMain(ESContext *esContext)

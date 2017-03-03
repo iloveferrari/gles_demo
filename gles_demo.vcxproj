@@ -194,6 +194,7 @@
     <ClCompile Include="core\rendering\Label.cpp" />
     <ClCompile Include="core\rendering\Panel.cpp" />
     <ClCompile Include="core\rendering\Sky.cpp" />
+    <ClCompile Include="core\rendering\SkyModel.cpp" />
     <ClCompile Include="core\rendering\Terrain.cpp" />
     <ClCompile Include="core\rendering\Texture.cpp" />
     <ClCompile Include="core\rendering\triangle.cpp" />
@@ -374,11 +375,13 @@
     <ClInclude Include="core\math\glm\vector_relational.hpp" />
     <ClInclude Include="core\platform\Device.h" />
     <ClInclude Include="core\rendering\Camera.h" />
+    <ClInclude Include="core\rendering\constants.h" />
     <ClInclude Include="core\rendering\cube.h" />
     <ClInclude Include="core\rendering\Input.h" />
     <ClInclude Include="core\rendering\Label.h" />
     <ClInclude Include="core\rendering\Panel.h" />
     <ClInclude Include="core\rendering\Sky.h" />
+    <ClInclude Include="core\rendering\SkyModel.h" />
     <ClInclude Include="core\rendering\Terrain.h" />
     <ClInclude Include="core\rendering\Texture.h" />
     <ClInclude Include="core\rendering\triangle.h" />

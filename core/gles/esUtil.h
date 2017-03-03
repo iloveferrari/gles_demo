@@ -123,6 +123,8 @@ extern "C" {
 		glm::mat4   mvp_matrix;
 		glm::mat4   ortho_matrix;
 
+		glm::vec3   camera_pos;
+
 #ifndef __APPLE__
 		/// Display handle
 		EGLNativeDisplayType eglNativeDisplay;

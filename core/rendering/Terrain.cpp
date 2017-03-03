@@ -11,7 +11,7 @@ using namespace std;
 Terrain::Terrain()
 {
 	m_step = 2.0f;
-	m_minZ = 0.0f;
+	m_minZ = -100.0f;
 	m_scale = 0.54f;
 
 	m_indicesVBO = 0;
