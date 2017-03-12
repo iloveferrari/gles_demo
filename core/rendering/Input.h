@@ -48,7 +48,7 @@ public:
 		return instance;
 	}
 
-	void updateAxis(int x, int y)
+	void updateAxis(float x, float y)
 	{
 		m_detalX = x - m_x;
 		m_detalY = y - m_y;
@@ -92,20 +92,20 @@ public:
 
 	float getAxisX()
 	{
-		int result = m_detalX;
-		m_detalX = 0;
+		float result = m_detalX;
+		m_detalX = 0.0;
 		return result;
 	}
 
 	float getAxisY()
 	{
-		int result = m_detalY;
-		m_detalY = 0;
+		float result = m_detalY;
+		m_detalY = 0.0;
 		return result;
 	}
 
 private:
-	int m_x, m_y;
+	float m_x, m_y;
 	float m_detalX, m_detalY;
 	float m_sensitivity;
 	unordered_map<KEYNAME, bool> m_keysState;
@@ -113,4 +113,4 @@ private:
 	float m_mouseWheelScrollDis;
 };
 
-#endif INPUT_H
+#endif //INPUT_H

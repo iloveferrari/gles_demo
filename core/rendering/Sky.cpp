@@ -61,17 +61,17 @@ void Sky::InitModel()
 		1.18737, 1.14683, 1.12362, 1.1058, 1.07124, 1.04992
 	};
 
-	const char* kVertexShader = R"(
-				#version 330
-				uniform mat4 model_from_view;
-				uniform mat4 view_from_clip;
-				layout(location = 0) in vec4 vertex;
-				out vec3 view_ray;
-				void main() 
-				{
-				  view_ray = (model_from_view * vec4((view_from_clip * vertex).xyz, 0.0)).xyz;
-				  gl_Position = vertex;
-				})";
+	const char* kVertexShader = 
+	     R"(#version 300 es
+			uniform mat4 model_from_view;
+			uniform mat4 view_from_clip;
+			layout(location = 0) in vec4 vertex;
+			out vec3 view_ray;
+			void main() 
+			{
+				view_ray = (model_from_view * vec4((view_from_clip * vertex).xyz, 0.0)).xyz;
+				gl_Position = vertex;
+			})";
 
 	// Wavelength independent solar irradiance "spectrum" (not physically
 	// realistic, but was used in the original implementation).
@@ -111,54 +111,80 @@ void Sky::InitModel()
 		mie_extinction.push_back(mie);
 		ground_albedo.push_back(kGroundAlbedo);
 	}
-
+	CHECK_GL_ERROR_DEBUG();
 	model_.reset(new SkyModel(wavelengths, solar_irradiance, kSunAngularRadius,
 		kBottomRadius, kTopRadius, kRayleighScaleHeight, rayleigh_scattering,
 		kMieScaleHeight, mie_scattering, mie_extinction, kMiePhaseFunctionG,
 		ground_albedo, kMaxSunZenithAngle, kLengthUnitInMeters,
 		use_combined_textures_));
-	//model_->Init();
-
+	model_->Init();
+	CHECK_GL_ERROR_DEBUG();
 	/*
 	<p>Then, it creates and compiles the vertex and fragment shaders used to render
 	our demo scene, and link them with the <code>Model</code>'s atmosphere shader
 	to get the final scene rendering program:
 	*/
-
-	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &kVertexShader, NULL);
-	glCompileShader(vertex_shader);
-
+	CHECK_GL_ERROR_DEBUG();
+	GLuint vertex_shader = esLoadShader(GL_VERTEX_SHADER, kVertexShader);
+	CHECK_GL_ERROR_DEBUG();
 	const std::string fragment_shader_str =
-		"#version 330\n" +
+		"#version 300 es\n" 
+        "precision mediump float;\n" +
 		std::string(use_luminance_ ? "#define USE_LUMINANCE\n" : "") +
-		getStringFromFile("atmosphere/demo/demo.c");
+		getStringFromFile("core/demo.c");
 	const char* fragment_shader_source = fragment_shader_str.c_str();
-	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
-	glCompileShader(fragment_shader);
-
+	GLuint fragment_shader = esLoadShader(GL_FRAGMENT_SHADER, fragment_shader_source);
+	CHECK_GL_ERROR_DEBUG();
 	if (program_ != 0) {
 		glDeleteProgram(program_);
 	}
 	program_ = glCreateProgram();
+	CHECK_GL_ERROR_DEBUG();
 	glAttachShader(program_, vertex_shader);
+	CHECK_GL_ERROR_DEBUG();
 	glAttachShader(program_, fragment_shader);
+	CHECK_GL_ERROR_DEBUG();
 	glAttachShader(program_, model_->GetShader());
+	CHECK_GL_ERROR_DEBUG();
 	glLinkProgram(program_);
-	glDetachShader(program_, vertex_shader);
-	glDetachShader(program_, fragment_shader);
-	glDetachShader(program_, model_->GetShader());
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
+	CHECK_GL_ERROR_DEBUG();
+	GLint linked;
+	// Check the link status
+	glGetProgramiv(program_, GL_LINK_STATUS, &linked);
 
+	if (!linked)
+	{
+		GLint infoLen = 0;
+
+		glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &infoLen);
+
+		if (infoLen > 1)
+		{
+			char *infoLog = (char *)malloc(sizeof(char)* infoLen);
+
+			glGetProgramInfoLog(program_, infoLen, NULL, infoLog);
+			esLogMessage("Error linking program:\n%s\n", infoLog);
+
+			free(infoLog);
+		}
+
+		glDeleteProgram(program_);
+		//return 0;
+	}
+	//glDetachShader(program_, vertex_shader);
+	//glDetachShader(program_, fragment_shader);
+	//glDetachShader(program_, model_->GetShader());
+	//glDeleteShader(vertex_shader);
+	//glDeleteShader(fragment_shader);
+	CHECK_GL_ERROR_DEBUG();
 	/*
 	<p>Finally, it sets the uniforms of this program that can be set once and for
 	all (in our case this includes the <code>Model</code>'s texture uniforms,
 	because our demo app does not have any texture of its own):
 	*/
-
+	CHECK_GL_ERROR_DEBUG();
 	glUseProgram(program_);
+	CHECK_GL_ERROR_DEBUG();
 	model_->SetProgramUniforms(program_, 0, 1, 2, 3);
 	double white_point_r = 1.0;
 	double white_point_g = 1.0;
@@ -182,6 +208,7 @@ void Sky::InitModel()
 	glUniform2f(glGetUniformLocation(program_, "sun_size"),
 		tan(kSunAngularRadius),
 		cos(kSunAngularRadius));
+	CHECK_GL_ERROR_DEBUG();
 }
 
 std::string Sky::getStringFromFile(const char* filename)
@@ -200,4 +227,42 @@ std::string Sky::getStringFromFile(const char* filename)
 
 void Sky::draw(ESContext *esContext)
 {
+	CHECK_GL_ERROR_DEBUG();
+	glUseProgram(program_);
+	CHECK_GL_ERROR_DEBUG();
+	glUniform3f(glGetUniformLocation(program_, "camera"),
+		esContext->camera_pos.x,
+		esContext->camera_pos.y,
+		esContext->camera_pos.z);
+	glUniform1f(glGetUniformLocation(program_, "exposure"),
+		use_luminance_ ? exposure_ * 1e-5 : exposure_);
+	glUniformMatrix4fv(glGetUniformLocation(program_, "model_from_view"),
+		1, true, &esContext->mvp_matrix[0][0]);
+	glUniform3f(glGetUniformLocation(program_, "sun_direction"),
+		cos(sun_azimuth_angle_radians_) * sin(sun_zenith_angle_radians_),
+		sin(sun_azimuth_angle_radians_) * sin(sun_zenith_angle_radians_),
+		cos(sun_zenith_angle_radians_));
+	CHECK_GL_ERROR_DEBUG();
+	GLfloat vertexPos[4 * 2] =
+	{
+		-1.0, -1.0,   // v0
+		+1.0, -1.0,   // v1
+		-1.0, +1.0,   // v2
+		+1.0, +1.0    // v3
+	};
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertexPos);
+	glEnableVertexAttribArray(0);
+
+	CHECK_GL_ERROR_DEBUG();
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	CHECK_GL_ERROR_DEBUG();
+
+	glDisableVertexAttribArray(0);
+
+	CHECK_GL_ERROR_DEBUG();
+
+	glViewport(0, 0, esContext->width, esContext->height);
 }

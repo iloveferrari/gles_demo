@@ -15,16 +15,26 @@ Triangle::~Triangle()
 GLboolean Triangle::init()
 {
 	const char vShaderStr[] =
-		"#version 300 es										  \n"
-		"uniform mat4 u_mvpMatrix;								  \n"
-		"layout(location = 0) in vec4 a_position;				  \n"
-		"layout(location = 1) in vec4 a_color;					  \n"
-		"out vec4 v_color;										  \n"
-		"void main()											  \n"
-		"{														  \n"
-		"    v_color = a_color;                                   \n"
-		"    gl_Position = u_mvpMatrix * a_position;              \n"
-		"}";
+		R"( #version 300 es
+			struct material_properties 
+			{ 
+				vec4 ambient_color; 
+				vec4 diffuse_color; 
+				vec4 specular_color; 
+				float specular_exponent;
+			};
+
+			uniform material_properties aa;
+										 
+			uniform mat4 u_mvpMatrix;								
+			layout(location = 0) in vec4 a_position;				
+			layout(location = 1) in vec4 a_color;				
+			out vec4 v_color;										
+			void main()										
+			{													
+				v_color = a_color;                             
+				gl_Position = u_mvpMatrix * a_position;      
+			})";
 
 
 	const char fShaderStr[] =
@@ -75,5 +85,7 @@ void Triangle::draw(ESContext *esContext)
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
+
+	CHECK_GL_ERROR_DEBUG();
 }

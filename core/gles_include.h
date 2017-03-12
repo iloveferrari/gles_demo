@@ -30,3 +30,4 @@
 #include "gles/KHR/khrplatform.h"
 
 #include "gles/esUtil.h"
+#include "rendering/types.h"

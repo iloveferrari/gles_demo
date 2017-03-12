@@ -73,18 +73,21 @@ GLboolean Cube::init()
 	glGenBuffers(1, &m_positionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
 	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof (GLfloat)* 3, vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	free(vertices);
 
 	// normal VBO for base terrain
 	glGenBuffers(1, &m_normalsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_normalsVBO);
 	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof (GLfloat)* 3, normals, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	free(normals);
 
 	// texCoord VBO for base terrain
 	glGenBuffers(1, &m_texCoordsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_texCoordsVBO);
 	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof (GLfloat)* 2, texCoords, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	free(texCoords);
 
 	m_modelMatrix = glm::translate(glm::vec3(60, 80, 80));

@@ -25,26 +25,26 @@
 */
 
 /* Platform-specific types and definitions for egl.h
- * $Revision: 23432 $ on $Date: 2013-10-09 00:57:24 -0700 (Wed, 09 Oct 2013) $
- *
- * Adopters may modify khrplatform.h and this file to suit their platform.
- * You are encouraged to submit all modifications to the Khronos group so that
- * they can be included in future versions of this file.  Please submit changes
- * by sending them to the public Khronos Bugzilla (http://khronos.org/bugzilla)
- * by filing a bug against product "EGL" component "Registry".
- */
+* $Revision: 30994 $ on $Date: 2015-04-30 13:36:48 -0700 (Thu, 30 Apr 2015) $
+*
+* Adopters may modify khrplatform.h and this file to suit their platform.
+* You are encouraged to submit all modifications to the Khronos group so that
+* they can be included in future versions of this file.  Please submit changes
+* by sending them to the public Khronos Bugzilla (http://khronos.org/bugzilla)
+* by filing a bug against product "EGL" component "Registry".
+*/
 
 #include <KHR/khrplatform.h>
 
 /* Macros used in EGL function prototype declarations.
- *
- * EGL functions should be prototyped as:
- *
- * EGLAPI return-type EGLAPIENTRY eglFunction(arguments);
- * typedef return-type (EXPAPIENTRYP PFNEGLFUNCTIONPROC) (arguments);
- *
- * KHRONOS_APICALL and KHRONOS_APIENTRY are defined in KHR/khrplatform.h
- */
+*
+* EGL functions should be prototyped as:
+*
+* EGLAPI return-type EGLAPIENTRY eglFunction(arguments);
+* typedef return-type (EXPAPIENTRYP PFNEGLFUNCTIONPROC) (arguments);
+*
+* KHRONOS_APICALL and KHRONOS_APIENTRY are defined in KHR/khrplatform.h
+*/
 
 #ifndef EGLAPI
 #define EGLAPI KHRONOS_APICALL
@@ -56,16 +56,16 @@
 #define EGLAPIENTRYP EGLAPIENTRY*
 
 /* The types NativeDisplayType, NativeWindowType, and NativePixmapType
- * are aliases of window-system-dependent types, such as X Display * or
- * Windows Device Context. They must be defined in platform-specific
- * code below. The EGL-prefixed versions of Native*Type are the same
- * types, renamed in EGL 1.3 so all types in the API start with "EGL".
- *
- * Khronos STRONGLY RECOMMENDS that you use the default definitions
- * provided below, since these changes affect both binary and source
- * portability of applications using EGL running on different EGL
- * implementations.
- */
+* are aliases of window-system-dependent types, such as X Display * or
+* Windows Device Context. They must be defined in platform-specific
+* code below. The EGL-prefixed versions of Native*Type are the same
+* types, renamed in EGL 1.3 so all types in the API start with "EGL".
+*
+* Khronos STRONGLY RECOMMENDS that you use the default definitions
+* provided below, since these changes affect both binary and source
+* portability of applications using EGL running on different EGL
+* implementations.
+*/
 
 #if defined(_WIN32) || defined(__VC32__) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__) /* Win32 and WinCE */
 #ifndef WIN32_LEAN_AND_MEAN
@@ -75,7 +75,13 @@
 
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
+
+#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP) /* Windows Desktop */
 typedef HWND    EGLNativeWindowType;
+#else /* Windows Store */
+#include <inspectable.h>
+typedef IInspectable* EGLNativeWindowType;
+#endif
 
 #elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
 
@@ -93,6 +99,12 @@ typedef struct ANativeWindow*           EGLNativeWindowType;
 typedef struct egl_native_pixmap_t*     EGLNativePixmapType;
 typedef void*                           EGLNativeDisplayType;
 
+#elif defined(USE_OZONE)
+
+typedef intptr_t EGLNativeDisplayType;
+typedef intptr_t EGLNativeWindowType;
+typedef intptr_t EGLNativePixmapType;
+
 #elif defined(__unix__)
 
 /* X11 (tentative)  */
@@ -102,6 +114,18 @@ typedef void*                           EGLNativeDisplayType;
 typedef Display *EGLNativeDisplayType;
 typedef Pixmap   EGLNativePixmapType;
 typedef Window   EGLNativeWindowType;
+
+#elif defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) || defined(__MACOS_CLASSIC__) )
+
+#if defined(__OBJC__)
+@class CALayer;
+#else
+class CALayer;
+#endif
+
+typedef void *EGLNativeDisplayType;
+typedef void *EGLNativePixmapType;
+typedef CALayer *EGLNativeWindowType;
 
 #else
 #error "Platform not recognized"
@@ -114,12 +138,12 @@ typedef EGLNativeWindowType  NativeWindowType;
 
 
 /* Define EGLint. This must be a signed integral type large enough to contain
- * all legal attribute names and values passed into and out of EGL, whether
- * their type is boolean, bitmask, enumerant (symbolic constant), integer,
- * handle, or other.  While in general a 32-bit integer will suffice, if
- * handles are 64 bit types, then EGLint should be defined as a signed 64-bit
- * integer type.
- */
+* all legal attribute names and values passed into and out of EGL, whether
+* their type is boolean, bitmask, enumerant (symbolic constant), integer,
+* handle, or other.  While in general a 32-bit integer will suffice, if
+* handles are 64 bit types, then EGLint should be defined as a signed 64-bit
+* integer type.
+*/
 typedef khronos_int32_t EGLint;
 
 #endif /* __eglplatform_h */

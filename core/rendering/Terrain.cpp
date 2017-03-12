@@ -81,17 +81,20 @@ void Terrain::init()
 	glGenBuffers(1, &m_normalsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_normalsVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_width * m_height * sizeof (GLfloat)* 3, normals, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	free(normals);
 
 	// texCoord VBO for base terrain
 	glGenBuffers(1, &m_texCoordsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_texCoordsVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_width * m_height * sizeof (GLfloat)* 2, texCoords, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	free(texCoords);
 
 	glGenBuffers(1, &m_positionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
 	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat) * m_width * m_height, positions, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	free(indices);
 	free(positions);
@@ -140,6 +143,7 @@ void Terrain::draw(ESContext *esContext)
 
 	glDisableVertexAttribArray(POSITION_LOC);
 	glDisableVertexAttribArray(TEXCOORD_LOC);
+	glDisableVertexAttribArray(NORMAL_LOC);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 

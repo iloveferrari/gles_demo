@@ -747,7 +747,7 @@ GLuint ESUTIL_API esLoadShader(GLenum type, const char *shaderSrc)
 			char *infoLog = (char *)malloc(sizeof (char)* infoLen);
 
 			glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-			esLogMessage("Error compiling shader:\n%s\n", infoLog);
+			printf("Error compiling shader:\n%s\n", infoLog);
 
 			free(infoLog);
 		}

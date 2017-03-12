@@ -75,7 +75,7 @@ and we render a full quad in this FBO. For this we need a basic vertex shader:
 */
 
 const char* kVertexShader = 
-R"( #version 310 es
+R"( #version 300 es
     layout(location = 0) in vec2 vertex;
     void main() {
       gl_Position = vec4(vertex, 0.0, 1.0);
@@ -87,7 +87,7 @@ want to write):
 */
 
 const char* kGeometryShader = R"(
-    #version 310 es
+    #version 300 es
     #extension GL_EXT_geometry_shader4 : enable
     layout(triangles) in;
     layout(triangle_strip, max_vertices = 3) out;
@@ -139,7 +139,7 @@ const char* kComputeSingleScatteringShader = R"(
     layout(location = 1) out vec3 delta_mie;
     layout(location = 2) out vec4 scattering;
     uniform sampler2D transmittance_texture;
-    uniform int layer;
+    uniform float layer;
     void main() {
 		ComputeSingleScatteringTexture(
 			ATMOSPHERE, transmittance_texture, vec3(gl_FragCoord.xy, layer + 0.5),
@@ -155,7 +155,7 @@ const char* kComputeScatteringDensityShader = R"(
     uniform sampler3D multiple_scattering_texture;
     uniform sampler2D irradiance_texture;
     uniform int scattering_order;
-    uniform int layer;
+    uniform float layer;
     void main() {
 		scattering_density = ComputeScatteringDensityTexture(
 			ATMOSPHERE, transmittance_texture, single_rayleigh_scattering_texture,
@@ -184,7 +184,7 @@ const char* kComputeMultipleScatteringShader = R"(
     layout(location = 1) out vec4 scattering;
     uniform sampler2D transmittance_texture;
     uniform sampler3D scattering_density_texture;
-    uniform int layer;
+    uniform float layer;
     void main() {
 		float nu;
 		delta_multiple_scattering = ComputeMultipleScatteringTexture(
@@ -340,6 +340,11 @@ public:
 		glUniform1i(glGetUniformLocation(program_, uniform_name.c_str()), value);
 	}
 
+	void BindFloat(const std::string& uniform_name, float value) const
+	{
+		glUniform1f(glGetUniformLocation(program_, uniform_name.c_str()), value);
+	}
+
 	void BindTexture2d(const std::string& sampler_uniform_name, GLuint texture,
 		GLuint texture_unit) const 
 	{
@@ -425,8 +430,8 @@ GLuint NewTexture2d(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	// 16F precision for the transmittance gives artifacts.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0,
-		GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+		GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
 	return texture;
 }
 
@@ -444,7 +449,7 @@ GLuint NewTexture3d(int width, int height, int depth, GLenum format)
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	if (format == GL_RGBA)
 	{
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, width, height, depth, 0,
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, width, height, depth, 0,
 			format, GL_FLOAT, NULL);
 	}
 	else
@@ -461,20 +466,20 @@ GLuint NewTexture3d(int width, int height, int depth, GLenum format)
 
 void DrawQuad()
 {
-	GLfloat vertexPos[4 * 2] =
+	GLfloat vertexPos[] =
 	{
-		-1.0, -1.0,   // v0
-		+1.0, -1.0,   // v1
-		-1.0, +1.0,   // v2
-		+1.0, +1.0    // v3
+		-1.0, -1.0,  // v0
+		 1.0, -1.0,  // v1
+		-1.0,  1.0,  // v2
+		 1.0,  1.0   // v3
 	};
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertexPos);
 	glEnableVertexAttribArray(0);
-
+	CHECK_GL_ERROR_DEBUG();
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glDisableVertexAttribArray(1);
+	CHECK_GL_ERROR_DEBUG();
+	glDisableVertexAttribArray(0);
 }
 
 /*
@@ -626,12 +631,15 @@ SkyModel::SkyModel(
 	ComputeSpectralRadianceToLuminanceFactors(wavelengths, solar_irradiance,
 		0 /* lambda_power */, &sun_k_r, &sun_k_g, &sun_k_b);
 	glsl_header_ =
-		"#version 310 es\n"
+		"#version 300 es\n"
 		"#define IN(x) const in x\n"
 		"#define OUT(x) out x\n"
 		"#define TEMPLATE(x)\n"
 		"#define TEMPLATE_ARGUMENT(x)\n"
 		"#define assert(x)\n"
+		"precision mediump float;\n"
+		"precision mediump sampler2D;\n"
+		"precision mediump sampler3D;\n"
 		"const int TRANSMITTANCE_TEXTURE_WIDTH = " +
 		std::to_string(TRANSMITTANCE_TEXTURE_WIDTH) + ";\n" +
 		"const int TRANSMITTANCE_TEXTURE_HEIGHT = " +
@@ -771,19 +779,27 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 
 	// The precomputations also require a temporary framebuffer object, created
 	// here (and destroyed at the end of this method).
-	GLuint fbo;
+	GLuint fbo, depth_render_buffer;
 	glGenFramebuffers(1, &fbo);
+
+	glGenRenderbuffers(1, &depth_render_buffer);
+	CHECK_GL_ERROR_DEBUG();
+	// bind renderbuffer and create a 16-bit depth buffer
+	// width and height of renderbuffer = width and height of
+	// the texture
+	glBindRenderbuffer(GL_RENDERBUFFER, depth_render_buffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
+	CHECK_GL_ERROR_DEBUG();
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
 	const GLuint kDrawBuffers[3] = {
 		GL_COLOR_ATTACHMENT0,
 		GL_COLOR_ATTACHMENT1,
 		GL_COLOR_ATTACHMENT2
 	};
-
+	CHECK_GL_ERROR_DEBUG();
 	glDrawBuffers(1, kDrawBuffers);
-
+	CHECK_GL_ERROR_DEBUG();
 	// Finally, the precomputations also require specific GLSL programs, for each
 	// precomputation step. We create and compile them here (they are
 	// automatically destroyed when this method returns, via the Program
@@ -795,26 +811,42 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 	Program compute_indirect_irradiance(kVertexShader, glsl_header_ + kComputeIndirectIrradianceShader);
 	Program compute_multiple_scattering(kVertexShader, glsl_header_ + kComputeMultipleScatteringShader);
 
+	CHECK_GL_ERROR_DEBUG();
 	// Compute the transmittance, and store it in transmittance_texture_.
 	glFramebufferTexture2D(
-		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, transmittance_texture_, 0, 0);
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, transmittance_texture_, 0);
+	// specify depth_renderbufer as depth attachment
+	//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_render_buffer);
+
+	// check for framebuffer complete
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("Framebuffer object is not complete!\n");
+	}
+
 	glViewport(0, 0, TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
 	compute_transmittance.Use();
+	CHECK_GL_ERROR_DEBUG();
 	DrawQuad();
+
+	CHECK_GL_ERROR_DEBUG();
 
 	// Compute the direct irradiance, store it in delta_irradiance_texture, and
 	// initialize irradiance_texture_ with zeros (we don't want the direct
 	// irradiance in irradiance_texture_, but only the irradiance from the sky).
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-		delta_irradiance_texture, 0, 0);
+		GL_TEXTURE_2D, delta_irradiance_texture, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
-		irradiance_texture_, 0, 0);
+		GL_TEXTURE_2D, irradiance_texture_, 0);
 	glDrawBuffers(2, kDrawBuffers);
 	glViewport(0, 0, IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT);
 	compute_direct_irradiance.Use();
 	compute_direct_irradiance.BindTexture2d(
 		"transmittance_texture", transmittance_texture_, 0);
 	DrawQuad();
+
+	CHECK_GL_ERROR_DEBUG();
 
 	// Compute the rayleigh and mie single scattering, and store them in
 	// delta_rayleigh_scattering_texture and delta_mie_scattering_texture, as well
@@ -832,9 +864,11 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 			delta_mie_scattering_texture, 0, layer);
 		glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2,
 			scattering_texture_, 0, layer);
-		compute_single_scattering.BindInt("layer", layer);
+		compute_single_scattering.BindFloat("layer", layer);
 		DrawQuad();
 	}
+
+	CHECK_GL_ERROR_DEBUG();
 
 	// Compute the 2nd, 3rd and 4th order of scattering, in sequence.
 	for (unsigned int scattering_order = 2;
@@ -866,8 +900,8 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 		{
 			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 				delta_scattering_density_texture, 0, layer);
-			compute_scattering_density.BindInt("layer", layer);
-			//DrawQuad();
+			compute_scattering_density.BindFloat("layer", layer);
+			DrawQuad();
 		}
 
 		// Compute the indirect irradiance, store it in delta_irradiance_texture and
@@ -913,11 +947,13 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 				delta_multiple_scattering_texture, 0, layer);
 			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
 				scattering_texture_, 0, layer);
-			compute_multiple_scattering.BindInt("layer", layer);
+			compute_multiple_scattering.BindFloat("layer", layer);
 			DrawQuad();
 		}
 		glDisable(GL_BLEND);
 	}
+
+	CHECK_GL_ERROR_DEBUG();
 
 	// Delete the temporary resources allocated at the begining of this method.
 	glUseProgram(0);
@@ -929,7 +965,8 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 	}
 	glDeleteTextures(1, &delta_rayleigh_scattering_texture);
 	glDeleteTextures(1, &delta_irradiance_texture);
-	assert(glGetError() == 0);
+
+	CHECK_GL_ERROR_DEBUG();
 }
 
 /*
