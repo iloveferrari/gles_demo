@@ -192,6 +192,8 @@ public:
 
 	unsigned int GetShader() const { return atmosphere_shader_; }
 
+	std::string getAtmosphereShaderStr() { return atmosphere_shader_str_;  }
+
 	void SetProgramUniforms(unsigned int program,
 		unsigned int transmittance_texture_unit,
 		unsigned int scattering_texture_unit,
@@ -214,6 +216,7 @@ public:
 
 private:
 	std::string glsl_header_;
+	std::string atmosphere_shader_str_;
 	unsigned int transmittance_texture_;
 	unsigned int scattering_texture_;
 	unsigned int optional_single_mie_scattering_texture_;

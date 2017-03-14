@@ -128,10 +128,10 @@ void Sky::InitModel()
 	GLuint vertex_shader = esLoadShader(GL_VERTEX_SHADER, kVertexShader);
 	CHECK_GL_ERROR_DEBUG();
 	const std::string fragment_shader_str =
-		"#version 300 es\n" 
-        "precision mediump float;\n" +
-		std::string(use_luminance_ ? "#define USE_LUMINANCE\n" : "") +
+		model_->getAtmosphereShaderStr() +
+		std::string(use_luminance_ ? "\n#define USE_LUMINANCE\n" : "") +
 		getStringFromFile("core/demo.c");
+
 	const char* fragment_shader_source = fragment_shader_str.c_str();
 	GLuint fragment_shader = esLoadShader(GL_FRAGMENT_SHADER, fragment_shader_source);
 	CHECK_GL_ERROR_DEBUG();
@@ -143,8 +143,6 @@ void Sky::InitModel()
 	glAttachShader(program_, vertex_shader);
 	CHECK_GL_ERROR_DEBUG();
 	glAttachShader(program_, fragment_shader);
-	CHECK_GL_ERROR_DEBUG();
-	glAttachShader(program_, model_->GetShader());
 	CHECK_GL_ERROR_DEBUG();
 	glLinkProgram(program_);
 	CHECK_GL_ERROR_DEBUG();
@@ -171,11 +169,11 @@ void Sky::InitModel()
 		glDeleteProgram(program_);
 		//return 0;
 	}
-	//glDetachShader(program_, vertex_shader);
-	//glDetachShader(program_, fragment_shader);
+	glDetachShader(program_, vertex_shader);
+	glDetachShader(program_, fragment_shader);
 	//glDetachShader(program_, model_->GetShader());
-	//glDeleteShader(vertex_shader);
-	//glDeleteShader(fragment_shader);
+	glDeleteShader(vertex_shader);
+	glDeleteShader(fragment_shader);
 	CHECK_GL_ERROR_DEBUG();
 	/*
 	<p>Finally, it sets the uniforms of this program that can be set once and for
@@ -230,6 +228,20 @@ void Sky::draw(ESContext *esContext)
 	CHECK_GL_ERROR_DEBUG();
 	glUseProgram(program_);
 	CHECK_GL_ERROR_DEBUG();
+	const float kFovY = 50.0 / 180.0 * M_PI;
+	const float kTanFovY = tan(kFovY / 2.0);
+	float aspect_ratio = static_cast<float>(esContext->width) / esContext->height;
+
+	// Transform matrix from clip space to camera space.
+	float view_from_clip[16] = {
+		kTanFovY * aspect_ratio, 0.0, 0.0, 0.0,
+		0.0, kTanFovY, 0.0, 0.0,
+		0.0, 0.0, 0.0, -1.0,
+		0.0, 0.0, 1.0, 1.0
+	};
+	glUniformMatrix4fv(glGetUniformLocation(program_, "view_from_clip"), 1, true,
+		view_from_clip);
+
 	glUniform3f(glGetUniformLocation(program_, "camera"),
 		esContext->camera_pos.x,
 		esContext->camera_pos.y,
@@ -243,15 +255,15 @@ void Sky::draw(ESContext *esContext)
 		sin(sun_azimuth_angle_radians_) * sin(sun_zenith_angle_radians_),
 		cos(sun_zenith_angle_radians_));
 	CHECK_GL_ERROR_DEBUG();
-	GLfloat vertexPos[4 * 2] =
+	GLfloat vertexPos[] =
 	{
-		-1.0, -1.0,   // v0
-		+1.0, -1.0,   // v1
-		-1.0, +1.0,   // v2
-		+1.0, +1.0    // v3
+		-1.0, -1.0, 0.0, 1.0,   // v0
+		+1.0, -1.0, 0.0, 1.0,   // v1
+		-1.0, +1.0, 0.0, 1.0,   // v2
+		+1.0, +1.0, 0.0, 1.0    // v3
 	};
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertexPos);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, vertexPos);
 	glEnableVertexAttribArray(0);
 
 	CHECK_GL_ERROR_DEBUG();

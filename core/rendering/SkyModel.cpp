@@ -702,11 +702,11 @@ SkyModel::SkyModel(
 	irradiance_texture_ = NewTexture2d(
 		IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT);
 
-	std::string shader = glsl_header_ + kAtmosphereShader;
-	const char* source = shader.c_str();
-	atmosphere_shader_ = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(atmosphere_shader_, 1, &source, NULL);
-	glCompileShader(atmosphere_shader_);
+	atmosphere_shader_str_ = glsl_header_ + kAtmosphereShader;
+	//const char* source = atmosphere_shader_str_.c_str();
+	//atmosphere_shader_ = glCreateShader(GL_FRAGMENT_SHADER);
+	//glShaderSource(atmosphere_shader_, 1, &source, NULL);
+	//glCompileShader(atmosphere_shader_);
 }
 
 /*

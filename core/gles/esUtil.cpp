@@ -900,16 +900,16 @@ void Draw(ESContext *esContext)
 	// Clear the color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	_panel.draw(esContext);
+	//_panel.draw(esContext);
 	_sky.draw(esContext);
 
-	_triangle.draw(esContext);
-	_cube.draw(esContext);
+	//_triangle.draw(esContext);
+	//_cube.draw(esContext);
 
 
 	_terrain.draw(esContext);
 
-	_fpsLabel.draw(esContext);
+	//_fpsLabel.draw(esContext);
 }
 
 void update(ESContext *esContext, float detlaTime)
@@ -917,23 +917,23 @@ void update(ESContext *esContext, float detlaTime)
 	_camera.update(esContext, detlaTime);
 	Draw(esContext);
 
-	char str[20] = { 0 };
-	sprintf(str, "fps %.2f", 1 / detlaTime);
-	_fpsLabel.setString(str);
+	//char str[20] = { 0 };
+	//sprintf(str, "fps %.2f", 1 / detlaTime);
+	//_fpsLabel.setString(str);
 }
 
 void init(ESContext *esContext)
 {
 	_camera.lookAt(esContext, glm::vec3(0, 0, 0), glm::vec3(240, 100, -0.1), glm::vec3(0, 1, 0));
-	_triangle.init();
-	_cube.init();
+	//_triangle.init();
+	//_cube.init();
 	_terrain.init();
 	_sky.init();
-	_panel.init();
+	//_panel.init();
 
-	_fpsLabel.initWithString("fps: ", "DFGB_Y7_0.ttf", 20, 200, 50);
-	_fpsLabel.setPosition(60, 40);
-	_fpsLabel.setColor(Color3B(1.0f, 0.0f, 0.0f));
+	//_fpsLabel.initWithString("fps: ", "DFGB_Y7_0.ttf", 20, 200, 50);
+	//_fpsLabel.setPosition(60, 40);
+	//_fpsLabel.setColor(Color3B(1.0f, 0.0f, 0.0f));
 
 	glEnable(GL_CULL_FACE);  // 不采用背面剔除
 	glEnable(GL_DEPTH_TEST);
