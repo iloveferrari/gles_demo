@@ -143,7 +143,7 @@ void Camera::lookAt(ESContext *esContext, glm::vec3 eye, glm::vec3 center, glm::
 	float    aspect;
 
 	aspect = (GLfloat)esContext->width / (GLfloat)esContext->height;
-	esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 0.01f, 100000.0f);
+	esContext->perspective_matrix = glm::perspective(m_fieldOfView, aspect, 1.0f, -1.0f);
 	m_position = eye;
 
 	esContext->camera_pos = m_position;
@@ -175,10 +175,13 @@ void Camera::lookAt(ESContext *esContext, glm::vec3 eye, glm::vec3 center, glm::
 	originZAxis = glm::normalize(glm::vec3(orientation[0][2], orientation[1][2], orientation[2][2]));
 	targetZAxis = glm::normalize(glm::vec3(m_cameraMatrix[0][2], m_cameraMatrix[1][2], m_cameraMatrix[2][2]));
 
-	float xAxisRotateRadian = acos(originZAxis.x * targetZAxis.x + originZAxis.y * targetZAxis.y + originZAxis.z * targetZAxis.z);
+	float t = originZAxis.x * targetZAxis.x + originZAxis.y * targetZAxis.y + originZAxis.z * targetZAxis.z;
+	t = glm::min(1.0f, glm::max(-1.0f, t));
+	float xAxisRotateRadian = acos(t);
 	m_baseVerticalAngle = xAxisRotateRadian / 3.1415926 * 180;
 
-	rotateAxis = glm::normalize(glm::cross(originZAxis, targetZAxis));
+	glm::vec3 v = glm::cross(originZAxis, targetZAxis);
+	rotateAxis = glm::normalize(v);
 
 	orientation = glm::rotate(orientation, m_baseVerticalAngle, rotateAxis);
 	glm::vec3 resultZAxis = glm::vec3(orientation[0][2], orientation[1][2], orientation[2][2]);

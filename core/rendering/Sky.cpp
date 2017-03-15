@@ -16,7 +16,7 @@ const double kLengthUnitInMeters = 1000.0;
 
 Sky::Sky():
 	use_constant_solar_spectrum_(false),
-	use_combined_textures_(true),
+	use_combined_textures_(false),
 	use_luminance_(true),
 	do_white_balance_(false),
 	show_help_(true),
@@ -111,22 +111,19 @@ void Sky::InitModel()
 		mie_extinction.push_back(mie);
 		ground_albedo.push_back(kGroundAlbedo);
 	}
-	CHECK_GL_ERROR_DEBUG();
+
 	model_.reset(new SkyModel(wavelengths, solar_irradiance, kSunAngularRadius,
 		kBottomRadius, kTopRadius, kRayleighScaleHeight, rayleigh_scattering,
 		kMieScaleHeight, mie_scattering, mie_extinction, kMiePhaseFunctionG,
 		ground_albedo, kMaxSunZenithAngle, kLengthUnitInMeters,
 		use_combined_textures_));
 	model_->Init();
-	CHECK_GL_ERROR_DEBUG();
 	/*
 	<p>Then, it creates and compiles the vertex and fragment shaders used to render
 	our demo scene, and link them with the <code>Model</code>'s atmosphere shader
 	to get the final scene rendering program:
 	*/
-	CHECK_GL_ERROR_DEBUG();
 	GLuint vertex_shader = esLoadShader(GL_VERTEX_SHADER, kVertexShader);
-	CHECK_GL_ERROR_DEBUG();
 	const std::string fragment_shader_str =
 		model_->getAtmosphereShaderStr() +
 		std::string(use_luminance_ ? "\n#define USE_LUMINANCE\n" : "") +
@@ -134,18 +131,15 @@ void Sky::InitModel()
 
 	const char* fragment_shader_source = fragment_shader_str.c_str();
 	GLuint fragment_shader = esLoadShader(GL_FRAGMENT_SHADER, fragment_shader_source);
-	CHECK_GL_ERROR_DEBUG();
+
 	if (program_ != 0) {
 		glDeleteProgram(program_);
 	}
 	program_ = glCreateProgram();
-	CHECK_GL_ERROR_DEBUG();
 	glAttachShader(program_, vertex_shader);
-	CHECK_GL_ERROR_DEBUG();
 	glAttachShader(program_, fragment_shader);
-	CHECK_GL_ERROR_DEBUG();
 	glLinkProgram(program_);
-	CHECK_GL_ERROR_DEBUG();
+
 	GLint linked;
 	// Check the link status
 	glGetProgramiv(program_, GL_LINK_STATUS, &linked);
@@ -174,13 +168,11 @@ void Sky::InitModel()
 	//glDetachShader(program_, model_->GetShader());
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
-	CHECK_GL_ERROR_DEBUG();
 	/*
 	<p>Finally, it sets the uniforms of this program that can be set once and for
 	all (in our case this includes the <code>Model</code>'s texture uniforms,
 	because our demo app does not have any texture of its own):
 	*/
-	CHECK_GL_ERROR_DEBUG();
 	glUseProgram(program_);
 	CHECK_GL_ERROR_DEBUG();
 	model_->SetProgramUniforms(program_, 0, 1, 2, 3);
@@ -198,7 +190,7 @@ void Sky::InitModel()
 	glUniform3f(glGetUniformLocation(program_, "white_point"),
 		white_point_r, white_point_g, white_point_b);
 	glUniform3f(glGetUniformLocation(program_, "earth_center"),
-		0.0, 0.0, -kBottomRadius / kLengthUnitInMeters);
+		0.0, -kBottomRadius / kLengthUnitInMeters, 0.0f);
 	glUniform3f(glGetUniformLocation(program_, "sun_radiance"),
 		kSolarIrradiance[0] / kSunSolidAngle,
 		kSolarIrradiance[1] / kSunSolidAngle,
@@ -206,7 +198,6 @@ void Sky::InitModel()
 	glUniform2f(glGetUniformLocation(program_, "sun_size"),
 		tan(kSunAngularRadius),
 		cos(kSunAngularRadius));
-	CHECK_GL_ERROR_DEBUG();
 }
 
 std::string Sky::getStringFromFile(const char* filename)
@@ -225,9 +216,8 @@ std::string Sky::getStringFromFile(const char* filename)
 
 void Sky::draw(ESContext *esContext)
 {
-	CHECK_GL_ERROR_DEBUG();
 	glUseProgram(program_);
-	CHECK_GL_ERROR_DEBUG();
+
 	const float kFovY = 50.0 / 180.0 * M_PI;
 	const float kTanFovY = tan(kFovY / 2.0);
 	float aspect_ratio = static_cast<float>(esContext->width) / esContext->height;
@@ -249,12 +239,12 @@ void Sky::draw(ESContext *esContext)
 	glUniform1f(glGetUniformLocation(program_, "exposure"),
 		use_luminance_ ? exposure_ * 1e-5 : exposure_);
 	glUniformMatrix4fv(glGetUniformLocation(program_, "model_from_view"),
-		1, true, &esContext->mvp_matrix[0][0]);
+		1, true, &esContext->camera_matrix[0][0]);
 	glUniform3f(glGetUniformLocation(program_, "sun_direction"),
 		cos(sun_azimuth_angle_radians_) * sin(sun_zenith_angle_radians_),
 		sin(sun_azimuth_angle_radians_) * sin(sun_zenith_angle_radians_),
 		cos(sun_zenith_angle_radians_));
-	CHECK_GL_ERROR_DEBUG();
+
 	GLfloat vertexPos[] =
 	{
 		-1.0, -1.0, 0.0, 1.0,   // v0
@@ -266,11 +256,7 @@ void Sky::draw(ESContext *esContext)
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, vertexPos);
 	glEnableVertexAttribArray(0);
 
-	CHECK_GL_ERROR_DEBUG();
-
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	CHECK_GL_ERROR_DEBUG();
 
 	glDisableVertexAttribArray(0);
 

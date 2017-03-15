@@ -239,25 +239,25 @@ perspective for the sphere and the planet:
 */
 
 void main() {
-  // Normalized view direction vector.
-  vec3 view_direction = normalize(view_ray);
-  // Tangent of the angle subtended by this fragment.
-  float fragment_angular_size =
-      length(dFdx(view_ray) + dFdy(view_ray)) / length(view_ray);
+    // Normalized view direction vector.
+    vec3 view_direction = normalize(view_ray);
+    // Tangent of the angle subtended by this fragment.
+    float fragment_angular_size =
+        length(dFdx(view_ray) + dFdy(view_ray)) / length(view_ray);
 
-  float shadow_in;
-  float shadow_out;
-  GetSphereShadowInOut(view_direction, sun_direction, shadow_in, shadow_out);
+    float shadow_in;
+    float shadow_out;
+    GetSphereShadowInOut(view_direction, sun_direction, shadow_in, shadow_out);
 
-  // Hack to fade out light shafts when the Sun is very close to the horizon.
-  float lightshaft_fadein_hack = smoothstep(
-      0.02, 0.04, dot(normalize(camera - earth_center), sun_direction));
+    // Hack to fade out light shafts when the Sun is very close to the horizon.
+    float lightshaft_fadein_hack = smoothstep(
+        0.02, 0.04, dot(normalize(camera - earth_center), sun_direction));
 
-/*
-<p>We then test whether the view ray intersects the sphere S or not. If it does,
-we compute an approximate (and biased) opacity value, using the same
-approximation as in <code>GetSunVisibility</code>:
-*/
+	/*
+	<p>We then test whether the view ray intersects the sphere S or not. If it does,
+	we compute an approximate (and biased) opacity value, using the same
+	approximation as in <code>GetSunVisibility</code>:
+	*/
 
     // Compute the distance between the view ray line and the sphere center,
     // and the distance between the camera and the intersection of the view
@@ -306,9 +306,9 @@ approximation as in <code>GetSunVisibility</code>:
 	        max(0.0, min(shadow_out, distance_to_intersection) - shadow_in) *
 	        lightshaft_fadein_hack;
 	    vec3 transmittance;
-	    //vec3 in_scatter = GetSkyRadianceToPoint(camera - earth_center,
-	    //    point - earth_center, shadow_length, sun_direction, transmittance);
-	    //sphere_radiance = sphere_radiance * transmittance + in_scatter;
+	    vec3 in_scatter = GetSkyRadianceToPoint(camera - earth_center,
+	        point - earth_center, shadow_length, sun_direction, transmittance);
+	    sphere_radiance = sphere_radiance * transmittance + in_scatter;
     }
 
 	/*
@@ -326,7 +326,7 @@ approximation as in <code>GetSunVisibility</code>:
 	p_dot_p = dot(p, p);
 	float ray_earth_center_squared_distance = p_dot_p - p_dot_v * p_dot_v;
 	distance_to_intersection = -p_dot_v - sqrt(
-    earth_center.z * earth_center.z - ray_earth_center_squared_distance);
+    earth_center.y * earth_center.y - ray_earth_center_squared_distance);
 
     // Compute the radiance reflected by the ground, if the ray intersects it.
     float ground_alpha = 0.0;
@@ -348,9 +348,9 @@ approximation as in <code>GetSunVisibility</code>:
 	        max(0.0, min(shadow_out, distance_to_intersection) - shadow_in) *
 	        lightshaft_fadein_hack;
 	    vec3 transmittance;
-	    //vec3 in_scatter = GetSkyRadianceToPoint(camera - earth_center,
-	    //    point - earth_center, shadow_length, sun_direction, transmittance);
-	    //ground_radiance = ground_radiance * transmittance + in_scatter;
+	    vec3 in_scatter = GetSkyRadianceToPoint(camera - earth_center,
+	        point - earth_center, shadow_length, sun_direction, transmittance);
+	    ground_radiance = ground_radiance * transmittance + in_scatter;
 	    ground_alpha = 1.0;
     }
 
@@ -364,9 +364,9 @@ approximation as in <code>GetSunVisibility</code>:
     float shadow_length = max(0.0, shadow_out - shadow_in) *
         lightshaft_fadein_hack;
     vec3 transmittance;
-    vec3 radiance = vec3(0.5);
-    //GetSkyRadiance(camera - earth_center, view_direction, 0.0, sun_direction,
-    //    transmittance);
+    vec3 radiance = 
+        GetSkyRadiance(camera - earth_center, view_direction, shadow_length, sun_direction,
+            transmittance);
 
     // If the view ray intersects the Sun, add the Sun radiance.
     if (dot(view_direction, sun_direction) > sun_size.y) 

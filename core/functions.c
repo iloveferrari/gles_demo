@@ -1512,73 +1512,73 @@ RadianceSpectrum GetSkyRadiance(
     Position camera, IN(Direction) view_ray, Length shadow_length,
     IN(Direction) sun_direction, OUT(DimensionlessSpectrum) transmittance) 
 {
-  // Compute the distance to the top atmosphere boundary along the view ray,
-  // assuming the viewer is in space (or NaN if the view ray does not intersect
-  // the atmosphere).
-  Length r = length(camera);
-  Length rmu = dot(camera, view_ray);
-  Length distance_to_top_atmosphere_boundary = -rmu -
-      sqrt(rmu * rmu - r * r + atmosphere.top_radius * atmosphere.top_radius);
-  // If the viewer is in space and the view ray intersects the atmosphere, move
-  // the viewer to the top atmosphere boundary (along the view ray):
-  if (distance_to_top_atmosphere_boundary > 0.0 * m) 
-  {
-    camera = camera + view_ray * distance_to_top_atmosphere_boundary;
-    r = atmosphere.top_radius;
-    rmu += distance_to_top_atmosphere_boundary;
-  }
+	// Compute the distance to the top atmosphere boundary along the view ray,
+	// assuming the viewer is in space (or NaN if the view ray does not intersect
+	// the atmosphere).
+	Length r = length(camera);
+	Length rmu = dot(camera, view_ray);
+	Length distance_to_top_atmosphere_boundary = -rmu -
+	    sqrt(rmu * rmu - r * r + atmosphere.top_radius * atmosphere.top_radius);
+	// If the viewer is in space and the view ray intersects the atmosphere, move
+	// the viewer to the top atmosphere boundary (along the view ray):
+	if (distance_to_top_atmosphere_boundary > 0.0 * m) 
+	{
+		camera = camera + view_ray * distance_to_top_atmosphere_boundary;
+		r = atmosphere.top_radius;
+		rmu += distance_to_top_atmosphere_boundary;
+	}
 
-  // If the view ray does not intersect the atmosphere, simply return 0.
-  if (r > atmosphere.top_radius) 
-  {
-    transmittance = DimensionlessSpectrum(1.0);
-    return RadianceSpectrum(0.0 * watt_per_square_meter_per_sr_per_nm);
-  }
+	// If the view ray does not intersect the atmosphere, simply return 0.
+	if (r > atmosphere.top_radius) 
+	{
+		transmittance = DimensionlessSpectrum(1.0);
+		return RadianceSpectrum(0.0 * watt_per_square_meter_per_sr_per_nm);
+	}
 
-  // Compute the r, mu, mu_s and nu parameters needed for the texture lookups.
-  Number mu = rmu / r;
-  Number mu_s = dot(camera, sun_direction) / r;
-  Number nu = dot(view_ray, sun_direction);
-  bool ray_r_mu_intersects_ground = RayIntersectsGround(atmosphere, r, mu);
+	// Compute the r, mu, mu_s and nu parameters needed for the texture lookups.
+	Number mu = rmu / r;
+	Number mu_s = dot(camera, sun_direction) / r;
+	Number nu = dot(view_ray, sun_direction);
+	bool ray_r_mu_intersects_ground = RayIntersectsGround(atmosphere, r, mu);
 
-  transmittance = ray_r_mu_intersects_ground ? DimensionlessSpectrum(0.0) :
-      GetTransmittanceToTopAtmosphereBoundary(
-          atmosphere, transmittance_texture, r, mu);
-  IrradianceSpectrum single_mie_scattering;
-  IrradianceSpectrum scattering;
+	transmittance = ray_r_mu_intersects_ground ? DimensionlessSpectrum(0.0) :
+	  GetTransmittanceToTopAtmosphereBoundary(
+	      atmosphere, transmittance_texture, r, mu);
+	IrradianceSpectrum single_mie_scattering;
+	IrradianceSpectrum scattering;
 
-  if (shadow_length == 0.0 * m) 
-  {
-    scattering = GetCombinedScattering(
-        atmosphere, scattering_texture, single_mie_scattering_texture,
-        r, mu, mu_s, nu, ray_r_mu_intersects_ground,
-        single_mie_scattering);
-  } 
-  else 
-  {
-    // Case of light shafts (shadow_length is the total length noted l in our
-    // paper): we omit the scattering between the camera and the point at
-    // distance l, by implementing Eq. (18) of the paper (shadow_transmittance
-    // is the T(x,x_s) term, scattering is the S|x_s=x+lv term).
-    Length d = shadow_length;
-    Length r_p =
-        ClampRadius(atmosphere, sqrt(d * d + 2.0 * r * mu * d + r * r));
-    Number mu_p = (r * mu + d) / r_p;
-    Number mu_s_p = (r * mu_s + d * nu) / r_p;
+	if (shadow_length == 0.0 * m) 
+	{
+		scattering = GetCombinedScattering(
+	    	atmosphere, scattering_texture, single_mie_scattering_texture,
+	    	r, mu, mu_s, nu, ray_r_mu_intersects_ground,
+	    	single_mie_scattering);
+	} 
+	else 
+	{
+		// Case of light shafts (shadow_length is the total length noted l in our
+		// paper): we omit the scattering between the camera and the point at
+		// distance l, by implementing Eq. (18) of the paper (shadow_transmittance
+		// is the T(x,x_s) term, scattering is the S|x_s=x+lv term).
+		Length d = shadow_length;
+		Length r_p =
+	    	ClampRadius(atmosphere, sqrt(d * d + 2.0 * r * mu * d + r * r));
+		Number mu_p = (r * mu + d) / r_p;
+		Number mu_s_p = (r * mu_s + d * nu) / r_p;
 
-    scattering = GetCombinedScattering(
-        atmosphere, scattering_texture, single_mie_scattering_texture,
-        r_p, mu_p, mu_s_p, nu, ray_r_mu_intersects_ground,
-        single_mie_scattering);
-    DimensionlessSpectrum shadow_transmittance =
-        GetTransmittance(atmosphere, transmittance_texture,
-            r, mu, shadow_length, ray_r_mu_intersects_ground);
-    scattering = scattering * shadow_transmittance;
-    single_mie_scattering = single_mie_scattering * shadow_transmittance;
-  }
+		scattering = GetCombinedScattering(
+	    	atmosphere, scattering_texture, single_mie_scattering_texture,
+	    	r_p, mu_p, mu_s_p, nu, ray_r_mu_intersects_ground,
+	    	single_mie_scattering);
+		DimensionlessSpectrum shadow_transmittance =
+	   	    GetTransmittance(atmosphere, transmittance_texture,
+	        	r, mu, shadow_length, ray_r_mu_intersects_ground);
+		scattering = scattering * shadow_transmittance;
+		single_mie_scattering = single_mie_scattering * shadow_transmittance;
+	}
 
-  return scattering * RayleighPhaseFunction(nu) + single_mie_scattering *
-      MiePhaseFunction(atmosphere.mie_phase_function_g, nu);
+	return scattering * RayleighPhaseFunction(nu) + single_mie_scattering *
+		MiePhaseFunction(atmosphere.mie_phase_function_g, nu);
 }
 
 /*

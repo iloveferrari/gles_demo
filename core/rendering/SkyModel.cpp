@@ -430,8 +430,8 @@ GLuint NewTexture2d(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	// 16F precision for the transmittance gives artifacts.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-		GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0,
+		GL_RGB, GL_FLOAT, NULL);
 	return texture;
 }
 
@@ -449,7 +449,7 @@ GLuint NewTexture3d(int width, int height, int depth, GLenum format)
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	if (format == GL_RGBA)
 	{
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, width, height, depth, 0,
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, width, height, depth, 0,
 			format, GL_FLOAT, NULL);
 	}
 	else
@@ -781,15 +781,13 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 	// here (and destroyed at the end of this method).
 	GLuint fbo, depth_render_buffer;
 	glGenFramebuffers(1, &fbo);
-
 	glGenRenderbuffers(1, &depth_render_buffer);
-	CHECK_GL_ERROR_DEBUG();
+
 	// bind renderbuffer and create a 16-bit depth buffer
 	// width and height of renderbuffer = width and height of
 	// the texture
-	glBindRenderbuffer(GL_RENDERBUFFER, depth_render_buffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
-	CHECK_GL_ERROR_DEBUG();
+	//glBindRenderbuffer(GL_RENDERBUFFER, depth_render_buffer);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 	const GLuint kDrawBuffers[3] = {
@@ -797,9 +795,9 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 		GL_COLOR_ATTACHMENT1,
 		GL_COLOR_ATTACHMENT2
 	};
-	CHECK_GL_ERROR_DEBUG();
+
 	glDrawBuffers(1, kDrawBuffers);
-	CHECK_GL_ERROR_DEBUG();
+
 	// Finally, the precomputations also require specific GLSL programs, for each
 	// precomputation step. We create and compile them here (they are
 	// automatically destroyed when this method returns, via the Program

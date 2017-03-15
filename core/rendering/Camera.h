@@ -20,6 +20,12 @@ private:
 	float m_baseHorizontalAngle;
 	float m_baseVerticalAngle;
 
+	float view_zenith_angle_radians_;
+	float view_azimuth_angle_radians_;
+
+	float previous_mouse_x_;
+	float previous_mouse_y_;
+
 	glm::vec3 m_position;
 	float m_moveSpeed;
 	float m_fieldOfView;
