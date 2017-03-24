@@ -180,19 +180,29 @@ const char* kComputeIndirectIrradianceShader = R"(
     })";
 
 const char* kComputeMultipleScatteringShader = R"(
-    layout(location = 0) out vec3 delta_multiple_scattering;
-    layout(location = 1) out vec4 scattering;
+    layout(location = 0) out vec4 delta_multiple_scattering;
     uniform sampler2D transmittance_texture;
     uniform sampler3D scattering_density_texture;
     uniform float layer;
     void main() {
 		float nu;
-		delta_multiple_scattering = ComputeMultipleScatteringTexture(
+		delta_multiple_scattering = vec4(ComputeMultipleScatteringTexture(
 			ATMOSPHERE, transmittance_texture, scattering_density_texture,
-			vec3(gl_FragCoord.xy, layer + 0.5), nu);
-		scattering = vec4(
-			delta_multiple_scattering.rgb / RayleighPhaseFunction(nu), 0.0);
+			vec3(gl_FragCoord.xy, layer + 0.5), nu)
+		, 0.0);
+		delta_multiple_scattering.a = nu;
     })";
+
+const char* kComputeMultipleScatteringShader_1 = R"(
+	layout(location = 0) out vec4 scattering;
+	uniform sampler3D delta_multiple_scattering;
+	uniform float layer;
+	void main() {
+		vec4 color = ComputeMultipleScatteringTexture_1(
+			ATMOSPHERE, delta_multiple_scattering, 
+			vec3(gl_FragCoord.xy, layer + 0.5));	
+		scattering = vec4(color.rgb / RayleighPhaseFunction(color.a), 0.0);
+	})";
 
 /*
 <p>We finally need a shader implementing the GLSL functions exposed in our API,
@@ -758,7 +768,7 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 		SCATTERING_TEXTURE_WIDTH,
 		SCATTERING_TEXTURE_HEIGHT,
 		SCATTERING_TEXTURE_DEPTH,
-		GL_RGB);
+		GL_RGBA);
 	GLuint delta_mie_scattering_texture;
 	if (optional_single_mie_scattering_texture_ == 0) {
 		delta_mie_scattering_texture = NewTexture3d(
@@ -808,6 +818,7 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 	Program compute_scattering_density(kVertexShader, glsl_header_ + kComputeScatteringDensityShader);
 	Program compute_indirect_irradiance(kVertexShader, glsl_header_ + kComputeIndirectIrradianceShader);
 	Program compute_multiple_scattering(kVertexShader, glsl_header_ + kComputeMultipleScatteringShader);
+	Program compute_multiple_scattering_1(kVertexShader, glsl_header_ + kComputeMultipleScatteringShader_1);
 
 	CHECK_GL_ERROR_DEBUG();
 	// Compute the transmittance, and store it in transmittance_texture_.
@@ -929,23 +940,41 @@ void SkyModel::Init(unsigned int num_scattering_orders) {
 		// Compute the multiple scattering, store it in
 		// delta_multiple_scattering_texture, and accumulate it in
 		// scattering_texture_.
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, 0, 0);
+
 		glViewport(0, 0, SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT);
 		compute_multiple_scattering.Use();
 		compute_multiple_scattering.BindTexture2d(
 			"transmittance_texture", transmittance_texture_, 0);
 		compute_multiple_scattering.BindTexture3d(
 			"scattering_density_texture", delta_scattering_density_texture, 1);
-		glEnable(GL_BLEND);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-		glDrawBuffers(2, kDrawBuffers);
+		glDrawBuffers(1, kDrawBuffers);
+		CHECK_GL_ERROR_DEBUG();
 		for (unsigned int layer = 0; layer < SCATTERING_TEXTURE_DEPTH; ++layer)
 		{
 			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 				delta_multiple_scattering_texture, 0, layer);
-			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
-				scattering_texture_, 0, layer);
+			CHECK_GL_ERROR_DEBUG();
 			compute_multiple_scattering.BindFloat("layer", layer);
+			CHECK_GL_ERROR_DEBUG();
+			DrawQuad();
+		}
+
+		compute_multiple_scattering_1.Use();
+		compute_multiple_scattering_1.BindTexture3d(
+			"scattering_density_texture", delta_multiple_scattering_texture, 0);
+		glEnable(GL_BLEND);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+		glDrawBuffers(1, kDrawBuffers);
+		for (unsigned int layer = 0; layer < SCATTERING_TEXTURE_DEPTH; ++layer)
+		{
+			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+				scattering_texture_, 0, layer);
+			compute_multiple_scattering_1.BindFloat("layer", layer);
 			DrawQuad();
 		}
 		glDisable(GL_BLEND);

@@ -924,7 +924,7 @@ void update(ESContext *esContext, float detlaTime)
 
 void init(ESContext *esContext)
 {
-	_camera.lookAt(esContext, glm::vec3(0.0, 1.0, 0.0), glm::vec3(1, 1, 1.0), glm::vec3(0, 1, 0));
+	_camera.lookAt(esContext, glm::vec3(0.0, 1.0, 0.0), glm::vec3(1, 0.8, 1.0), glm::vec3(0, 1, 0));
 	//_triangle.init();
 	//_cube.init();
 	//_terrain.init();

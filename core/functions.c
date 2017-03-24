@@ -1197,6 +1197,66 @@ RadianceSpectrum ComputeMultipleScatteringTexture(
       ray_r_mu_intersects_ground);
 }
 
+vec4 ComputeMultipleScatteringTexture_1(
+    IN(AtmosphereParameters) atmosphere,
+    IN(ScatteringDensityTexture) scattering_density_texture,
+    IN(vec3) frag_coord) 
+{
+	Length r;
+	Number mu;
+	Number mu_s;
+	Number nu;
+	bool ray_r_mu_intersects_ground;
+
+	GetRMuMuSNuFromScatteringTextureFragCoord(atmosphere, frag_coord,
+	    r, mu, mu_s, nu, ray_r_mu_intersects_ground);
+
+	assert(r >= atmosphere.bottom_radius && r <= atmosphere.top_radius);
+	assert(mu >= -1.0 && mu <= 1.0);
+	assert(mu_s >= -1.0 && mu_s <= 1.0);
+	assert(nu >= -1.0 && nu <= 1.0);
+
+	// Number of intervals for the numerical integration.
+	const int SAMPLE_COUNT = 50;
+	// The integration step, i.e. the length of each integration interval.
+	Length dx =
+	    DistanceToNearestAtmosphereBoundary(
+	        atmosphere, r, mu, ray_r_mu_intersects_ground) / Number(SAMPLE_COUNT);
+	// Integration loop.
+	vec4 rayleigh_mie_sum =
+	    vec4(0.0 * watt_per_square_meter_per_sr_per_nm);	    
+	for (int i = 0; i <= SAMPLE_COUNT; ++i) 
+	{
+	    Length d_i = Number(i) * dx;
+
+	    // The r, mu and mu_s parameters at the current integration point (see the
+	    // single scattering section for a detailed explanation).
+	    Length r_i =
+	        ClampRadius(atmosphere, sqrt(d_i * d_i + 2.0 * r * mu * d_i + r * r));
+	    Number mu_i = ClampCosine((r * mu + d_i) / r_i);
+	    Number mu_s_i = ClampCosine((r * mu_s + d_i * nu) / r_i);
+
+		vec4 uvwz = GetScatteringTextureUvwzFromRMuMuSNu(
+		    atmosphere, r_i, mu_i, mu_s, mu_s_i, ray_r_mu_intersects_ground);
+		Number tex_coord_x = uvwz.x * Number(SCATTERING_TEXTURE_NU_SIZE - 1);
+		Number tex_x = floor(tex_coord_x);
+		Number lerp = tex_coord_x - tex_x;
+		vec3 uvw0 = vec3((tex_x + uvwz.y) / Number(SCATTERING_TEXTURE_NU_SIZE),
+		    uvwz.z, uvwz.w);
+		vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / Number(SCATTERING_TEXTURE_NU_SIZE),
+		    uvwz.z, uvwz.w);
+
+		vec4 rayleigh_mie_i = vec4(texture(scattering_density_texture, 
+			uvw0) * (1.0 - lerp) + texture(scattering_density_texture, uvw1) * lerp);
+
+	    // Sample weight (from the trapezoidal rule).
+	    Number weight_i = (i == 0 || i == SAMPLE_COUNT) ? 0.5 : 1.0;
+	    rayleigh_mie_sum += rayleigh_mie_i * weight_i;		
+	}
+
+	return rayleigh_mie_sum;
+}
+
 /*
 <h4 id="multiple_scattering_lookup">Lookup</h4>
 
